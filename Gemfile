@@ -4,6 +4,10 @@ gemspec
 
 gem 'rake'
 
+gem 'thin'
+gem 'puma'
+gem 'virtus'
+
 group(:test) do
   gem 'eetee',          '~> 0.0.3'
   gem 'mocha',          '~> 0.12.0'

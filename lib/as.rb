@@ -1,3 +1,10 @@
 require_relative 'as/version'
+require_relative 'as/wbxml'
+require_relative 'as/wbxml_lib'
+require_relative 'as/state'
 require_relative 'as/request'
+
 require_relative 'as/handler'
+require_relative 'as/command'
+require_relative 'as/commands/folder_sync'
+require_relative 'as/commands/sync'
