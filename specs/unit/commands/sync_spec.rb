@@ -33,6 +33,7 @@ describe 'Commands::Sync' do
             <Class>Contacts</Class>
             <SyncKey>0</SyncKey>
             <CollectionId>42</CollectionId>
+            <WindowSize>4</WindowSize>
           </Collection>
         </Collections>
       </Sync>

@@ -78,6 +78,82 @@ describe 'State' do
       updated.should == [AS::State::Folder.new(4, 'uzrt')]
     end
   end
+  
+  
+  describe 'contacts compare' do
+    before do
+      @user.addressbooks[0].contacts = [
+        build(:contact),
+        build(:contact),
+        build(:contact)
+      ]
+      
+      @user.addressbooks[1].contacts = [
+        build(:contact)
+      ]
+    end
+    
+    should 'find created' do
+      state = AS::State.new(@user)
+      new_contact = build(:contact)
+      
+      @user.addressbooks[0].contacts << new_contact
+      state2 = AS::State.new(@user)
+      
+      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created.should == [AS::State::Contact.new(new_contact.id, new_contact.etag)]
+      deleted.should == []
+      updated.should == []
+    end
+    
+    should 'find deleted' do
+      target = @user.addressbooks[0].contacts[0]
+      state = AS::State.new(@user)
+      @user.addressbooks[0].contacts.shift
+      state2 = AS::State.new(@user)
+      
+      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created.should == []
+      deleted.should == [AS::State::Contact.new(target.id, target.etag)]
+      updated.should == []
+    end
+    
+    should 'find updated' do
+      target = @user.addressbooks[0].contacts[1]
+      
+      state = AS::State.new(@user)
+      target.etag = 'something_else'
+      state2 = AS::State.new(@user)
+      
+      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created.should == []
+      deleted.should == []
+      updated.should == [AS::State::Contact.new(target.id, 'something_else')]
+    end
+    
+    should 'find created, deted and updated scoped by folder' do
+      delete_target = @user.addressbooks[1].contacts[0]
+      update_target = @user.addressbooks[0].contacts[0]
+      created_target = build(:contact)
+      
+      state = AS::State.new(@user)
+      update_target.etag = 'uzrt'
+      @user.addressbooks[1].contacts.shift
+      @user.addressbooks[1].contacts << created_target
+      state2 = AS::State.new(@user)
+      
+      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created.should == []
+      deleted.should == []
+      updated.should == [AS::State::Contact.new(update_target.id, update_target.etag)]
+      
+      created, deleted, updated = state.compare_contacts(@user.addressbooks[1].id, state2)
+      created.should == [AS::State::Contact.new(created_target.id, created_target.etag)]
+      deleted.should == [AS::State::Contact.new(delete_target.id, delete_target.etag)]
+      updated.should == []
+    end
+    
+  end
 
   
 end

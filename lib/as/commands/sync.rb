@@ -24,6 +24,16 @@ module AS
         @response.body = [Ox.dump(body, with_xml: true)]
       end
       
+      def response_ok(fs)
+        collections = @xml.locate('Sync/Collections/Collection')
+        collections.each do |c|
+          klass = find_text_node(c, 'Class')
+          p klass
+        end
+        
+        # window_size = @xml.locate('*/Collection/WindowSize/?[0]').first.to_i
+      end
+      
     end
     
   end

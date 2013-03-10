@@ -1,14 +1,24 @@
 module AS
   class State    
-    Folder = Struct.new(:id, :etag, :contacts)
     Contact = Struct.new(:id, :etag)
+    class Folder < Struct.new(:id, :etag, :contacts)
+      def initialize(*args)
+        super
+        self.contacts ||= []
+      end
+      
+      def find_contact(id)
+        contacts.detect{|o| o.id == id }
+      end
+    end
     
     attr_reader :id, :folders
     
     def initialize(user = nil)
       if user
         @folders = user.addressbooks.map do |book|
-          Folder.new(book.id, book.etag)
+          contacts = book.contacts.map{|c| Contact.new(c.id, c.etag) }
+          Folder.new(book.id, book.etag, contacts)
         end
       else
         @folders = []
@@ -33,6 +43,30 @@ module AS
       [created, deleted, updated]
     end
     
+    
+    def compare_contacts(folder_id, new_state)
+      folder = find_folder(folder_id)
+      new_folder = new_state.send(:find_folder, folder_id)
+      raise "unknown folder_id: #{folder_id}" unless folder && new_folder
+      
+      created = new_folder.contacts.select do |c|
+        folder.find_contact(c.id) == nil
+      end
+      
+      deleted = folder.contacts.select do |c|
+        new_folder.find_contact(c.id) == nil
+      end
+      
+      updated = new_folder.contacts.select do |c|
+        my_contact = folder.find_contact(c.id)
+        my_contact && (my_contact.etag != c.etag)
+      end
+
+      
+      [created, deleted, updated]
+    end
+    
+    
     def dump
       Ox.dump(self)
     end
@@ -46,7 +80,7 @@ module AS
     def find_folder(id)
       folders.detect{|o| o.id == id }
     end
-    
+        
   end
     
 end

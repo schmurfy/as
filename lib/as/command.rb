@@ -34,6 +34,15 @@ module AS
         @savedstate ||= current_user.load_savedstate(sync_key)
       end
     end
+    
+    def find_text_node(root_element, path)
+      tmp = root_element.locate("#{path}/?[0]")
+      if tmp
+        tmp[0]
+      else
+        nil
+      end
+    end
         
     def xml()
       Ox::Document.new(version: '1.0', encoding: 'utf-8').tap do |x|

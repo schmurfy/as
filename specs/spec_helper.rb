@@ -2,11 +2,13 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'eetee'
+require 'factory_girl'
 
 $LOAD_PATH.unshift( File.expand_path('../../lib' , __FILE__) )
 require 'as'
 
 require File.expand_path('../support/models', __FILE__)
+require File.expand_path('../factories', __FILE__)
 
 require 'eetee/ext/mocha'
 require 'eetee/ext/rack'
@@ -46,6 +48,10 @@ module MyHelpers
   def check_header(response, name, value)
     response.headers[name].should != nil
     response.headers[name].should == value
+  end
+  
+  def build(*args)
+    FactoryGirl.build(*args)
   end
 end
 

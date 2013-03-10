@@ -28,66 +28,15 @@ module Testing
 
   class Contact < DummyBase
     
-    attribute :uid, String
-    attribute :fields, Array[Field], default: []
+    attribute :id, Integer
+    attribute :etag, String
     
-    alias :path :uid
+    attribute :firstname, String
+    attribute :lastname, String
     
-    def update_from_vcard(vcf)
-      # raise "invalid uid" unless vcf['UID'].value == uid
-      if uid && vcf['UID'].value != uid
-        vcf['UID'].instance_variable_set('@value', uid)
-      end
-      
-      self.updated_at = Time.now
-      
-      # TODO: addressbook rename fields
-      fields.clear()
-      
-      vcf.each_field do |a|
-
-        # existing_field = fields.detect do |f|
-        #   (f.name == a.name) && (f.group == a.group) && (f.params == a.params)
-        # end
-        
-        # if existing_field
-        #   # puts "Updated '#{a.group}.#{a.name}' to '#{a.value}'"
-        #   existing_field.value = a.value
-        # else
-          # puts "Created '#{a.group}.#{a.name}' with '#{a.value}'"
-          fields << Field.from_vcf_field(a)
-        # end
-      end
-      
+    def fileas
+      "#{firstname} #{lastname}"
     end
-    
-    def save(user_agent)
-      # p [:agent, user_agent]
-      
-      # no-op
-      true
-    end
-    
-    def destroy
-      true
-    end
-    
-    def etag
-      rand(1000).to_s
-    end
-    
-    def vcard
-      vcard = VCardParser::VCard.new("3.0")
-      vcard.add_field('UID', uid)
-      
-      fields.each do |f|
-        puts "[vCard] Adding field #{f.name} / #{f.value} / #{f.group} / #{f.params}"
-        vcard.add_field(f.name, f.value, f.group, f.params)
-      end
-      
-      vcard
-    end
-    
   end
 
 
