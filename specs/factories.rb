@@ -2,8 +2,9 @@ FactoryGirl.define do
   
   factory(:contact, :class => Testing::Contact) do
     sequence(:id){|n| n }
-    firstname { ["Jobn", "Bob", "Raymond", "Juliet", "Lucy"].sample }
+    firstname { ["John", "Bob", "Raymond", "Juliet", "Lucy"].sample }
     lastname { ["Urgo", "Damon", "Marius", "Ton"].sample }
+    company_name { [nil, "TestCorp", "DummyCorp", "Test Inc."].sample }
     etag{ SecureRandom.hex(8) }
   end
   

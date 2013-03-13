@@ -6,7 +6,10 @@ describe 'Commands::Sync' do
     @books << Testing::AddressBook.new(
         id: 34,
         etag: 'b34',
-        displayname: 'a book'
+        displayname: 'a book',
+        contacts: [
+          build(:contact)
+        ]
       )
     
     user = @user = Testing::User.new(
@@ -24,6 +27,7 @@ describe 'Commands::Sync' do
   
   
   should 'handle Sync' do
+    book = @books[0]
     
     response = as_request('Sync', <<-EOS)
       <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
@@ -32,7 +36,56 @@ describe 'Commands::Sync' do
           <Collection>
             <Class>Contacts</Class>
             <SyncKey>0</SyncKey>
-            <CollectionId>42</CollectionId>
+            <CollectionId>#{book.id}</CollectionId>
+            <WindowSize>4</WindowSize>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    @user.contact_states.size.should == 1
+    state = @user.contact_states[0]
+    
+    
+    c = book.contacts[0]
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <Commands>
+              <Add>
+                <ServerId>#{c.id}</ServerId>
+                <ApplicationData>
+                  <C:FileAs>#{c.fileas}</C:FileAs>
+                  <C:FirstName>#{c.firstname}</C:FirstName>
+                  <C:LastName>#{c.lastname}</C:LastName>
+                  <C:CompanyName>#{c.company_name}</C:CompanyName>
+                </ApplicationData>
+              </Add>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    
+    # another request should return nothing
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
             <WindowSize>4</WindowSize>
           </Collection>
         </Collections>
@@ -42,13 +95,21 @@ describe 'Commands::Sync' do
     response.status.should == 200
     response.body.should == unindent(<<-EOS )
       <?xml version="1.0" encoding="utf-8"?>
-      <!DOCTYPE ActMMMiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
-      <FolderCreate>
-        <Status>1</Status>
-        <SyncKey>3</SyncKey>
-        <ServerId>42</ServerId>
-      </FolderCreate>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <Commands/>
+          </Collection>
+        </Collections>
+      </Sync>
     EOS
+    
+    
   end
   
 end

@@ -70,8 +70,12 @@ module AS
         WBXMLLib.wbxml_conv_xml2wbxml_set_version(@conv, version)
       end
       
-      def disable_public_id
+      def disable_public_id!
         WBXMLLib.wbxml_conv_xml2wbxml_disable_public_id(@conv)
+      end
+      
+      def disable_string_table!
+        WBXMLLib.wbxml_conv_xml2wbxml_disable_string_table(@conv)
       end
       
       def encode(buffer)
@@ -99,7 +103,8 @@ module AS
         @decoder = AS::WBXML::Decoder.new
         
         @decoder.set_language(language)
-        @encoder.disable_public_id()
+        @encoder.disable_public_id!
+        @encoder.disable_string_table!
       end
       
       
@@ -115,8 +120,11 @@ module AS
         
         # and encode the result
         if response.body.size > 0
-          response.body[0] = @encoder.encode(response.body[0])
-          headers['Content-Length'] = response.body[0].size.to_s
+          data = @encoder.encode(response.body[0])
+          response.body[0] = data
+          File.write('/tmp/dump.wbxml', data)
+          p [:SIZE, data.bytesize]
+          headers['Content-Length'] = data.bytesize.to_s
         else
           headers['Content-Length'] = "0"
         end
@@ -133,7 +141,9 @@ if __FILE__ == $0
   encoder = AS::WBXML::Encoder.new
   decoder = AS::WBXML::Decoder.new
   
-  encoder.set_version(:v13)
+  # encoder.set_version(:v12)
+  encoder.disable_public_id!
+  encoder.disable_string_table!
   
   # # bin_data = "\x03\x01j\x00\x00\aVR\x030\x00\x01\x01"
   # bin_data = File.read('/tmp/out.txt')
@@ -142,19 +152,37 @@ if __FILE__ == $0
   # p decoder.decode(bin_data)
   
   xml = <<-EOS
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/">
-<FolderSync>
-  <Status>1</Status>
-  <SyncKey>0</SyncKey>
-  <Changes>
-    <Count>0</Count>
-  </Changes>
-</FolderSync>
+<Sync xmlns="AirSync:">
+<Collections>
+<Collection>
+<Class>Contacts</Class>
+<SyncKey>{de8e5381-f732-4047-ab85-7c540b868557}3</SyncKey>
+<CollectionId>v/u-36</CollectionId>
+<Status>1</Status>
+<Commands>
+<Add>
+<ServerId>30630</ServerId>
+<ApplicationData>
+<BusinessPhoneNumber xmlns="Contacts:">+33607089788</BusinessPhoneNumber>
+<Email1Address xmlns="Contacts:">toto@free.fr</Email1Address>
+<Email2Address xmlns="Contacts:">justin@aol.com</Email2Address>
+<FileAs xmlns="Contacts:">Justin Mec</FileAs>
+<FirstName xmlns="Contacts:">Justin</FirstName>
+<JobTitle xmlns="Contacts:">Mr</JobTitle>
+<LastName xmlns="Contacts:">Mec</LastName>
+<MobilePhoneNumber xmlns="Contacts:">+33944332299</MobilePhoneNumber>
+</ApplicationData>
+</Add>
+</Commands>
+</Collection>
+</Collections>
+</Sync>
 EOS
   
   data =  encoder.encode(xml)
-  p data
+  File.write('/tmp/dummy', data)
     
   # data = File.read('/tmp/out.txt')
   # puts decoder.decode(data)

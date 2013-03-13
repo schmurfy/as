@@ -354,6 +354,7 @@ module AS
     attach_function :wbxml_conv_xml2wbxml_create, [:pointer], :wbxml_error
     attach_function :wbxml_conv_xml2wbxml_set_version, [:pointer, :wbxml_version], :wbxml_error
     attach_function :wbxml_conv_xml2wbxml_disable_public_id, [:pointer], :void
+    attach_function :wbxml_conv_xml2wbxml_disable_string_table, [:pointer], :void
     attach_function :wbxml_conv_xml2wbxml_run, [:pointer, :pointer, :uint, :pointer, :pointer], :wbxml_error
     attach_function :wbxml_conv_xml2wbxml_destroy, [:pointer], :void
 

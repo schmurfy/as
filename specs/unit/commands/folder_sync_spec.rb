@@ -36,9 +36,9 @@ describe 'Commands::FolderSync' do
     check_header(response, 'Content-Type', 'application/vnd.ms-sync.wbxml')
     
     # a new state should be create and its id returned to the client
-    @user.savedstates.size.should == 1
-    state = @user.savedstates[0]
-        
+    @user.folder_states.size.should == 1
+    state = @user.folder_states[0]
+    
     response.body.should == unindent(<<-EOS)
       <?xml version="1.0" encoding="utf-8"?>
       <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
@@ -51,11 +51,31 @@ describe 'Commands::FolderSync' do
             <ServerId>#{@books[0].id}</ServerId>
             <ParentId>0</ParentId>
             <DisplayName>#{@books[0].displayname}</DisplayName>
-            <Type>#{AS::Command::FOLDER_TYPE_CONTACTS}</Type>
+            <Type>#{AS::Command::FOLDER_TYPE_CONTACTS_DEFAULT}</Type>
           </Add>
         </Changes>
       </FolderSync>
     EOS
+    
+    # should return an empty response
+    response = as_request('FolderSync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <FolderSync xmlns="FolderHierarchy:">
+        <SyncKey>#{state.id}</SyncKey>
+      </FolderSync>
+    EOS
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS)
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <FolderSync xmlns="FolderHierarchy:">
+        <Status>1</Status>
+        <SyncKey>#{state.id}</SyncKey>
+        <Changes/>
+      </FolderSync>
+    EOS
+    
   end
   
   
@@ -72,7 +92,7 @@ describe 'Commands::FolderSync' do
     check_header(response, 'Content-Type', 'application/vnd.ms-sync.wbxml')
     
     # a new state should be create and its id returned to the client
-    @user.savedstates.size.should == 0
+    @user.folder_states.size.should == 0
         
     response.body.should == unindent(<<-EOS)
       <?xml version="1.0" encoding="utf-8"?>

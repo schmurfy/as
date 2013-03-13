@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 
+require 'rack/fiber_pool'
 require 'as'
 
 require File.expand_path('../sniffer', __FILE__)
@@ -30,16 +31,18 @@ Contact:
   
 =end
 
+$addr1 = Testing::AddressBook.new(id: 6, etag: '023', displayname: "Personnel", contacts: [
+    Testing::Contact.new(id: 5, etag: 'a95P', firstname: 'A', lastname: 'B'),
+    Testing::Contact.new(id: 89, etag: 'Y95d', firstname: 'Roger', lastname: 'Rabbit'),
+    Testing::Contact.new(id: 68, etag: '996P', firstname: 'Lucy', lastname: 'Liu')
+  ])
 
 $user = Testing::User.new(
     id: 1,
     login: 'test.user',
     addressbooks: [
-      Testing::AddressBook.new(id: 6, etag: '023', displayname: "Personnel"),
-      Testing::AddressBook.new(id: 38, etag: '025', displayname: "ja.directory")
-    ],
-    savedstates: [
-      Testing::SavedState.new(id: '8fbbe2cf', state: AS::State.new())
+      $addr1#,
+      # Testing::AddressBook.new(id: 38, etag: '025', displayname: "ja.directory")
     ]
   )
 
@@ -65,6 +68,8 @@ class AppAuthentifier < Rack::Auth::Basic
 end
 
 app = AS::Handler.new()
+
+use Rack::FiberPool, size: 20
 
 # authenticate user first
 use AppAuthentifier

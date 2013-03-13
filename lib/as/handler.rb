@@ -31,6 +31,10 @@ module AS
       else
         [404, {}, ['unsupported']]
       end
+      
+    rescue => err
+      p err
+      puts err.backtrace.each.to_a.join("\n")
     end
     
     def options(req, response)
@@ -51,6 +55,7 @@ module AS
       case r.nodes[1].value
       when "FolderSync"   then cmd = Commands::FolderSync
       when "Sync"         then cmd = Commands::Sync
+      when "Ping"         then cmd = Commands::Ping
       
       when 'FolderCreate'
         key = r.locate('*/SyncKey/?[0]').first

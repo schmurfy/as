@@ -13,26 +13,17 @@ module Testing
   end
 
 
-  class Field < DummyBase
-    
-    attribute :group, String
-    attribute :name, String
-    attribute :value, String
-    attribute :params, Hash, default: {}
-    
-    
-    def self.from_vcf_field(f)
-      new(group: f.group, name: f.name, value: f.value, params: f.params)
-    end
-  end
 
   class Contact < DummyBase
+    
+    include AS::Formatters::Contact
     
     attribute :id, Integer
     attribute :etag, String
     
     attribute :firstname, String
     attribute :lastname, String
+    attribute :company_name, String
     
     def fileas
       "#{firstname} #{lastname}"
@@ -48,28 +39,24 @@ module Testing
     attribute :etag, String
     attribute :contacts, Array[Contact], default: []
     
-    def find_contact(uid)
-      uid = File.basename(uid, '.vcf')
-      
-      contacts.detect{|c| c.uid == uid.to_s }.tap do |ret|
-        # p [:find, uid, ret]
-      end
+    def find_contact(id)
+      contacts.detect{|c| c.id == id.to_i }
     end
     
-    def ctag
-      updated_at
-    end
+    # def ctag
+    #   updated_at
+    # end
     
-    def create_contact(uid)
-      uid = File.basename(uid, '.vcf')
-      Contact.new(uid: "1-#{uid}").tap do |c|
-        contacts << c
-      end
-    end
+    # def create_contact(uid)
+    #   uid = File.basename(uid, '.vcf')
+    #   Contact.new(uid: "1-#{uid}").tap do |c|
+    #     contacts << c
+    #   end
+    # end
     
-    def updated_at
-      Time.now.to_i
-    end
+    # def updated_at
+    #   Time.now.to_i
+    # end
     
   end
   
@@ -81,6 +68,14 @@ module Testing
     def compare_folders(new_state)
       state.compare_folders(new_state.state)
     end
+    
+    def compare_contacts(folder_id, new_state)
+      state.compare_contacts(folder_id, new_state.state)
+    end
+    
+    def folder_id
+      state.folder_id
+    end
   end
   
 
@@ -88,16 +83,42 @@ module Testing
     
     attribute :login, String
     attribute :addressbooks, Array[AddressBook], default: []
-    attribute :savedstates, Array[SavedState], default: []
+    
+    attribute :folder_states, Array[SavedState], default: []
+    attribute :contact_states, Array[SavedState], default: []
+    
+    def create_savedtstate(folder_id = nil)
+      s = SavedState.new(id: SecureRandom.hex(4), state: AS::State.new(nil, folder_id))
       
-    def create_savedtstate
-      SavedState.new(id: SecureRandom.hex(4), state: AS::State.new).tap do |s|
-        self.savedstates << s
+      if folder_id
+        self.contact_states << s
+      else
+        self.folder_states << s
       end
+      
+      s
     end
         
-    def load_savedstate(key)
-      savedstates.detect{|s| s.id == key }
+    def load_savedstate(type, key)
+      if type == :folders
+        folder_states.detect{|s| s.id == key }
+      else
+        contact_states.detect{|s| s.id == key }
+      end
+    end
+    
+    def update_savedstate(type, key, new_state)
+      raise "Invalid key: #{key}" if key == '0'
+      
+      if type == :folders
+        self.folder_states = (folder_states || []).reject{|s| s.id == key }
+        new_state.id = key
+        self.folder_states << new_state
+      else
+        self.contact_states = (contact_states || []).reject{|s| s.id == key }
+        new_state.id = key
+        self.contact_states << new_state
+      end
     end
     
     def current_state
@@ -113,6 +134,13 @@ module Testing
     
     def find_addressbook(id)
       addressbooks.detect{|b| b.id == id.to_i }
+    end
+    
+    def find_contact(folder_id, id)
+      book = find_addressbook(folder_id)
+      if book
+        book.find_contact(id)
+      end
     end
     
     
