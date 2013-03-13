@@ -3,7 +3,10 @@ module AS
       
     class Sync < Command
       
-      STATUS_SYNC_KEY_ERROR   = 3   # client will try again with a 0 key
+      STATUS_SYNC_KEY_ERROR     = 3   # client will try again with a 0 key
+      STATUS_HIERARCHY_CHANGED  = 12  # the client will send a FolderSync request to refresh
+      
+      UnknownFolderId = Class.new(RuntimeError)
       
       def handle!
         
@@ -32,7 +35,7 @@ module AS
                   contact.update_from_xml(data[0])
                   contact.save!
                 else
-                  raise "oh shit !"
+                  raise "unknown contact: #{id}"
                 end
               end
             end
@@ -147,8 +150,13 @@ module AS
           
           fs << node('Collection') do |n|
             if @status == STATUS_OK
-              collection_ok(n, state, folder_id)
-              update_saved_state(state.id, current_state())
+              begin
+                collection_ok(n, state, folder_id)
+                update_saved_state(state.id, current_state())
+              rescue AS::UnknownFolderId
+                @status = STATUS_HIERARCHY_CHANGED
+                collection_error(n, state, folder_id)
+              end
             else
               collection_error(n, state, folder_id)
             end

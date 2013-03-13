@@ -57,6 +57,7 @@ module AS
       when "FolderSync"   then cmd = Commands::FolderSync
       when "Sync"         then cmd = Commands::Sync
       when "Ping"         then cmd = Commands::Ping
+      when "Search"       then cmd = Commands::Search
       
       when 'FolderCreate'
         key = r.locate('*/SyncKey/?[0]').first

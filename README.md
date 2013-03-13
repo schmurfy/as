@@ -41,4 +41,3 @@ the tests will run when a file changed, if only want to run all tests once:
 ```bash
 $ bundle exec rake
 ```
-

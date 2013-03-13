@@ -31,14 +31,18 @@ Contact:
   
 =end
 
-$addr1 = Testing::AddressBook.new(id: 6, etag: '023', displayname: "Personnel", contacts: [
-    Testing::Contact.new(id: 5, etag: 'a95P', firstname: 'A', lastname: 'B'),
-    Testing::Contact.new(id: 89, etag: 'Y95d', firstname: 'Roger', lastname: 'Rabbit'),
-    Testing::Contact.new(id: 68, etag: '996P', firstname: 'Lucy', lastname: 'Liu')
+$addr1 = Testing::AddressBook.new(id: 6, etag: '023',
+    displayname: "Personnal",
+    contacts: [
+      Testing::Contact.new(id: 5, etag: 'a95P', firstname: 'A', lastname: 'B'),
+      Testing::Contact.new(id: 89, etag: 'Y95d', firstname: 'Roger', lastname: 'Rabbit'),
+      Testing::Contact.new(id: 68, etag: '996P', firstname: 'Lucy', lastname: 'Liu')
   ])
 
-$addr2 = Testing::AddressBook.new(id: 94, etag: '053', displayname: "Un annuaire", contacts: [
-    Testing::Contact.new(id: 78, etag: '44R', firstname: 'Georges', lastname: 'Martou')
+$addr2 = Testing::AddressBook.new(id: 94, etag: '053',
+    displayname: "Some directory",
+    contacts: [
+      Testing::Contact.new(id: 78, etag: '44R', firstname: 'Georges', lastname: 'Martou')
   ])
 
 $user = Testing::User.new(

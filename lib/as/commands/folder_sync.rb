@@ -65,7 +65,7 @@ module AS
               a << node('ServerId', folder.id)
               a << node('ParentId', '0')
               a << node('DisplayName', folder.displayname)
-              a << node('Type', FOLDER_TYPE_CONTACTS_DEFAULT)
+              a << node('Type', folder.default ? FOLDER_TYPE_CONTACTS_DEFAULT : FOLDER_TYPE_CONTACTS)
             end
           end
           

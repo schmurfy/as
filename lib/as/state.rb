@@ -49,7 +49,9 @@ module AS
       folder = find_folder(folder_id) || Folder.new(folder_id)
       new_folder = new_state.send(:find_folder, folder_id)
       
-      raise "unknown folder_id: #{folder_id}" unless folder && new_folder
+      unless folder && new_folder
+        raise AS::UnknownFolderId, folder_id
+      end
       
       created = new_folder.contacts.select do |c|
         folder.find_contact(c.id) == nil
