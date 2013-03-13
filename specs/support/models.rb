@@ -47,6 +47,7 @@ module Testing
     attribute :displayname, String
     attribute :etag, String
     attribute :contacts, Array[Contact], default: []
+    attribute :default, Boolean, default: false
     
     def find_contact(id)
       contacts.detect{|c| c.id == id.to_i }
