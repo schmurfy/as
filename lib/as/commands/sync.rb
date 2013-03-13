@@ -7,6 +7,59 @@ module AS
       
       def handle!
         
+        # used to store temporary client_id
+        @just_created = {}
+        
+        # check if the client ent some changes
+        @xml.locate('Sync/Collections/Collection').each do |collection|
+          collection_id = find_text_node(collection, 'CollectionId')
+          sync_key = find_text_node(collection, 'SyncKey')
+          changes = collection.locate('Commands/Change')
+          added = collection.locate('Commands/Add')
+          deleted = collection.locate('Commands/Delete')
+          
+          # client should not send any changes during initial sync
+          # just ignore if they do it anyway.
+          if (sync_key != '0')
+            unless changes.empty?
+              changes.each do |change|
+                id = find_text_node(change, 'ServerId')
+                data = change.locate('ApplicationData')
+                
+                # find contact and update it if found
+                contact = current_user.find_contact(collection_id, id)
+                if contact
+                  contact.update_from_xml(data[0])
+                  contact.save!
+                else
+                  raise "oh shit !"
+                end
+              end
+            end
+            
+            unless added.empty?
+              added.each do |creation|
+                client_id = find_text_node(creation, 'ClientId')
+                data = creation.locate('ApplicationData')
+                
+                contact = current_user.create_contact(collection_id)
+                contact.update_from_xml(data[0])
+                contact.save!
+                @just_created[contact.id] = client_id
+              end
+            end
+            
+            unless deleted.empty?
+              deleted.each do |deletion|
+                id = find_text_node(deletion, 'ServerId')
+                current_user.delete_contact(collection_id, id)
+              end
+            end
+            
+          end
+        end
+        
+        
         body = xml do |root|
           root << node('Sync', nil, xmlns: "AirSync:", "xmlns:C" => 'Contacts:') do |fs|
             fs << node('Collections') do |collections|
@@ -53,6 +106,11 @@ module AS
             contact = current_user.find_contact(folder_id, cached_contact.id)
             cmds << node('Add') do |a|
               a << node('ServerId', contact.id)
+              
+              if @just_created[contact.id]
+                a << node('ClientId', @just_created[contact.id])
+              end
+              
               a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
             end
           end
@@ -61,11 +119,7 @@ module AS
             contact = current_user.find_contact(folder_id, cached_contact.id)
             cmds << node('Change') do |a|
               a << node('ServerId', contact.id)
-              a << node('ApplicationData') do |app_data|
-                app_data << node('FileAs', contact.fileas, xmlns: 'Contacts:')
-                app_data << node('FirstName', contact.firstname, xmlns: 'Contacts:')
-                app_data << node('LastName', contact.lastname, xmlns: 'Contacts:')
-              end
+              a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
             end
           end
           

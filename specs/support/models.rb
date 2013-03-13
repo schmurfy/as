@@ -21,6 +21,7 @@ module Testing
     attribute :id, Integer
     attribute :etag, String
     
+    attribute :title, String
     attribute :firstname, String
     attribute :lastname, String
     attribute :company_name, String
@@ -28,6 +29,14 @@ module Testing
     def fileas
       "#{firstname} #{lastname}"
     end
+    
+    def fileas=(_)
+      
+    end
+    
+    def save!
+      self.etag = SecureRandom.hex(8)
+    end    
   end
 
 
@@ -47,12 +56,15 @@ module Testing
     #   updated_at
     # end
     
-    # def create_contact(uid)
-    #   uid = File.basename(uid, '.vcf')
-    #   Contact.new(uid: "1-#{uid}").tap do |c|
-    #     contacts << c
-    #   end
-    # end
+    def create_contact()
+      Contact.new(id: rand(2000)).tap do |c|
+        contacts << c
+      end
+    end
+    
+    def delete_contact(id)
+      contacts.reject!{|c| c.id == id.to_i }
+    end
     
     # def updated_at
     #   Time.now.to_i
@@ -80,7 +92,7 @@ module Testing
   
 
   class User < DummyBase
-    
+    attribute :id, Integer
     attribute :login, String
     attribute :addressbooks, Array[AddressBook], default: []
     
@@ -124,13 +136,26 @@ module Testing
     def current_state
       SavedState.new(state: AS::State.new(self))
     end
-    
+        
     
     # def all_addressbooks
     #   # may filter with router_params, or not
     #   addressbooks
     # end
     
+    def create_contact(folder_id)
+      book = find_addressbook(folder_id)
+      if book
+        book.create_contact()
+      end
+    end
+    
+    def delete_contact(folder_id, id)
+      book = find_addressbook(folder_id)
+      if book
+        book.delete_contact(id)
+      end
+    end
     
     def find_addressbook(id)
       addressbooks.detect{|b| b.id == id.to_i }

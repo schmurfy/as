@@ -20,7 +20,7 @@ describe 'Handler' do
     response = request(:options, '/')
         
     check_header(response, 'MS-ASProtocolCommands', 'Sync,FolderSync,Ping')
-    check_header(response, 'MS-ASProtocolVersions', '12.0, 12.1, 14.0')
+    check_header(response, 'MS-ASProtocolVersions', '12.0,12.1,14.0')
     check_header(response, 'MS-Server-ActiveSync', '14.00.0536.000')
     check_header(response, 'Public', 'OPTIONS,POST')
     

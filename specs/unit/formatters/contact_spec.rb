@@ -1,12 +1,9 @@
 require File.expand_path('../../../spec_helper', __FILE__)
 
 describe 'Formatters::Contact' do
-  before do
-    
-  end
   
   should 'encode contact to xml' do
-    c = build(:contact)
+    c = build(:contact, title: 'Mr')
     
     parent_node = Ox::Element.new('Dummy')
     
@@ -14,6 +11,7 @@ describe 'Formatters::Contact' do
     Ox.dump(parent_node).should == unindent(<<-EOS)
 
       <Dummy>
+        <C:Title>#{c.title}</C:Title>
         <C:FileAs>#{c.fileas}</C:FileAs>
         <C:FirstName>#{c.firstname}</C:FirstName>
         <C:LastName>#{c.lastname}</C:LastName>

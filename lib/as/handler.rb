@@ -44,6 +44,7 @@ module AS
       response.header['MS-ASProtocolVersions'] = '12.0,12.1,14.0'
       # response.header['MS-ASProtocolCommands'] = 'Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,ResolveRecipients,ValidateCert,Provision,Search,Ping,Notify'
       response.header['MS-ASProtocolCommands'] = 'Sync,FolderSync,Ping'
+      response.header['Public'] = 'OPTIONS,POST'
     end
     
     def post(req, response)
@@ -75,9 +76,8 @@ module AS
     
   private
     def add_common_headers!(response)
-      response.header['MS-Server-ActiveSync'] = '6.5.7638.1'
-      # response.header['MS-Server-ActiveSync'] = '14.00.0536.000'
-      # response.header['Public'] = 'OPTIONS,POST'
+      # response.header['MS-Server-ActiveSync'] = '6.5.7638.1'
+      response.header['MS-Server-ActiveSync'] = '14.00.0536.000'
 
     end
     

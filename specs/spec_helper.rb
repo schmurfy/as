@@ -12,15 +12,10 @@ require File.expand_path('../factories', __FILE__)
 
 require 'eetee/ext/mocha'
 require 'eetee/ext/rack'
-# require 'bacon/ext/em'
+require 'eetee/ext/em'
 
 # Thread.abort_on_exception = true
 
-
-def unindent(str)
-  spaces = str.scan(/^\s*/).min_by(&:length)
-  str.gsub(/^#{spaces}/, "")
-end
 
 class SpecWithUserMiddleware
   def initialize(app, user)
@@ -36,6 +31,25 @@ end
 
 
 module MyHelpers
+  def unindent(str)
+    spaces = str.scan(/^\s*/).min_by(&:length)
+    str.gsub(/^#{spaces}/, "")
+  end
+
+  
+  def build_contact_xml(c, indent_level, parent_name = 'ApplicationData')
+    parent_node = Ox::Element.new(parent_name)
+    c.to_xml(parent_node)
+    result = Ox.dump(parent_node)
+    
+    indent = ' ' * indent_level
+    lines = result.split("\n")[1..-1]
+    
+    lines = Array(lines[0]) + lines[1..-1].map{|line| "#{indent}#{line}" }
+    lines.join("\n")
+  end
+
+  
   def as_request(cmd, body, user = "bob", deviceid = "k456", devicetype = "Phone")
     request(:post, "/Microsoft-Server-ActiveSync?Cmd=#{cmd}&User=#{user}&DeviceId=#{deviceid}&DeviceType=#{devicetype}",
         'MS-ASProtocolVersion:' => '14.0',

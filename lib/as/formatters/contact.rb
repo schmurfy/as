@@ -5,14 +5,30 @@ module AS
       
       include AS::Helpers::XML
       
-      def to_xml(data)
-        data << node('C:FileAs', fileas)
-        data << node('C:FirstName', firstname)
-        data << node('C:LastName', lastname)
-        data << node('C:CompanyName', company_name)
-        # data << node('C:BusinessPhoneNumber', "0102030405")
+      def attributes_mapping
+        @mapping ||= {
+          'Title'       => 'title',
+          'FileAs'      => 'fileas',
+          'FirstName'   => 'firstname',
+          'LastName'    => 'lastname',
+          'CompanyName' => 'company_name'
+        }
       end
       
+      def to_xml(data)
+        attributes_mapping.each do |as_name, accessor_name|
+          data << node("C:#{as_name}", send(accessor_name))
+        end
+        
+      end
+      
+      def update_from_xml(data_node)
+        attributes_mapping.each do |as_name, accessor_name|
+          value = find_text_node(data_node, as_name)
+          send("#{accessor_name}=", value)
+        end
+      end
+            
     end
     
   end

@@ -6,6 +6,7 @@ require_relative 'as/request'
 
 require_relative 'as/helpers/xml'
 
+require_relative 'as/watcher'
 require_relative 'as/handler'
 require_relative 'as/command'
 require_relative 'as/formatters/contact'

@@ -20,7 +20,7 @@ module AS
       fb = Fiber.current
       
       EM::add_timer(delay) do
-        fb.Resume
+        fb.resume
       end
       
       Fiber.yield
@@ -38,14 +38,5 @@ module AS
       sync_key == '0'
     end
         
-    def find_text_node(root_element, path)
-      tmp = root_element.locate("#{path}/?[0]")
-      if tmp
-        tmp[0]
-      else
-        nil
-      end
-    end
-    
   end
 end

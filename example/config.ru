@@ -37,12 +37,16 @@ $addr1 = Testing::AddressBook.new(id: 6, etag: '023', displayname: "Personnel", 
     Testing::Contact.new(id: 68, etag: '996P', firstname: 'Lucy', lastname: 'Liu')
   ])
 
+$addr2 = Testing::AddressBook.new(id: 94, etag: '053', displayname: "Un annuaire", contacts: [
+    Testing::Contact.new(id: 78, etag: '44R', firstname: 'Georges', lastname: 'Martou')
+  ])
+
 $user = Testing::User.new(
     id: 1,
     login: 'test.user',
     addressbooks: [
-      $addr1#,
-      # Testing::AddressBook.new(id: 38, etag: '025', displayname: "ja.directory")
+      $addr1,
+      $addr2
     ]
   )
 
