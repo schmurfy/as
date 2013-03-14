@@ -9,6 +9,7 @@ module AS
   
   class Handler
     def initialize(opts = {})
+      @current_user = opts.delete(:current_user) || raise("current_user required")
       raise "unknown options: #{opts}" unless opts.empty?
     end
     
@@ -70,7 +71,7 @@ module AS
       
       
       if cmd
-        cmd.new(r, req, response).handle!
+        cmd.new(r, req, response, @current_user).handle!
       end
       
     end

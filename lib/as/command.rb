@@ -7,11 +7,12 @@ module AS
     FOLDER_TYPE_CONTACTS_DEFAULT = 9
     FOLDER_TYPE_CONTACTS = 14
     
-    def initialize(xml, req, response)
+    def initialize(xml, req, response, current_user)
       @req = req
       @response = response
       @xml = xml
       @status = STATUS_OK
+      @current_user = current_user
     end
         
   protected
@@ -27,7 +28,7 @@ module AS
     end
     
     def current_user
-      @req.env['as.user']
+      @current_user.call(@req)
     end
     
     def current_state
