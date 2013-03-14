@@ -53,7 +53,7 @@ describe 'Commands::Sync' do
     response.body.should == unindent(<<-EOS )
       <?xml version="1.0" encoding="utf-8"?>
       <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
-      <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+      <Sync xmlns="AirSync:">
         <Collections>
           <Collection>
             <Class>Contacts</Class>
@@ -91,7 +91,7 @@ describe 'Commands::Sync' do
     response.body.should == unindent(<<-EOS )
       <?xml version="1.0" encoding="utf-8"?>
       <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
-      <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+      <Sync xmlns="AirSync:">
         <Collections>
           <Collection>
             <Class>Contacts</Class>
@@ -157,7 +157,7 @@ describe 'Commands::Sync' do
       response.body.should == unindent(<<-EOS )
         <?xml version="1.0" encoding="utf-8"?>
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
-        <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+        <Sync xmlns="AirSync:">
           <Collections>
             <Collection>
               <Class>Contacts</Class>
@@ -218,7 +218,7 @@ describe 'Commands::Sync' do
       response.body.should == unindent(<<-EOS )
         <?xml version="1.0" encoding="utf-8"?>
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
-        <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+        <Sync xmlns="AirSync:">
           <Collections>
             <Collection>
               <Class>Contacts</Class>
@@ -271,7 +271,7 @@ describe 'Commands::Sync' do
       response.body.should == unindent(<<-EOS )
         <?xml version="1.0" encoding="utf-8"?>
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
-        <Sync xmlns="AirSync:" xmlns:C="Contacts:">
+        <Sync xmlns="AirSync:">
           <Collections>
             <Collection>
               <Class>Contacts</Class>

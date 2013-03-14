@@ -17,7 +17,7 @@ module AS
       
       def to_xml(data)
         attributes_mapping.each do |as_name, accessor_name|
-          data << node("C:#{as_name}", send(accessor_name))
+          data << node(as_name, send(accessor_name), xmlns: 'Contacts:')
         end
         
       end

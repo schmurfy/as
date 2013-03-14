@@ -4,6 +4,7 @@ module AS
     class Sync < Command
       
       STATUS_SYNC_KEY_ERROR     = 3   # client will try again with a 0 key
+      STATUS_CONFLICT           = 7   # client changes overwritten by server (NOTE: the client can open a popup ! )
       STATUS_HIERARCHY_CHANGED  = 12  # the client will send a FolderSync request to refresh
       
       UnknownFolderId = Class.new(RuntimeError)
@@ -64,7 +65,7 @@ module AS
         
         
         body = xml do |root|
-          root << node('Sync', nil, xmlns: "AirSync:", "xmlns:C" => 'Contacts:') do |fs|
+          root << node('Sync', nil, xmlns: "AirSync:") do |fs|
             fs << node('Collections') do |collections|
               do_response(collections)
             end

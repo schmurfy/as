@@ -11,11 +11,11 @@ describe 'Formatters::Contact' do
     Ox.dump(parent_node).should == unindent(<<-EOS)
 
       <Dummy>
-        <C:Title>#{c.title}</C:Title>
-        <C:FileAs>#{c.fileas}</C:FileAs>
-        <C:FirstName>#{c.firstname}</C:FirstName>
-        <C:LastName>#{c.lastname}</C:LastName>
-        <C:CompanyName>#{c.company_name}</C:CompanyName>
+        <Title xmlns="Contacts:">#{c.title}</Title>
+        <FileAs xmlns="Contacts:">#{c.fileas}</FileAs>
+        <FirstName xmlns="Contacts:">#{c.firstname}</FirstName>
+        <LastName xmlns="Contacts:">#{c.lastname}</LastName>
+        <CompanyName xmlns="Contacts:">#{c.company_name}</CompanyName>
       </Dummy>
     EOS
     
