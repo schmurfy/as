@@ -59,14 +59,6 @@ module AS
       when "Sync"         then cmd = Commands::Sync
       when "Ping"         then cmd = Commands::Ping
       when "Search"       then cmd = Commands::Search
-      
-      when 'FolderCreate'
-        key = r.locate('*/SyncKey/?[0]').first
-        parent_id = r.locate('FolderCreate/ParentId/?[0]').first
-        display_name = r.locate('FolderCreate/DisplayName/?[0]').first
-        
-        folder_create(key, parent_id, display_name, response)
-        
       end
       
       
