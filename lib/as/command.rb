@@ -28,7 +28,7 @@ module AS
     end
     
     def current_user
-      @current_user.call(@req)
+      @current_user ? @current_user.call(@req) : @req.env['as.user']
     end
     
     def current_state

@@ -9,7 +9,7 @@ module AS
   
   class Handler
     def initialize(opts = {})
-      @current_user = opts.delete(:current_user) || raise("current_user required")
+      @current_user = opts.delete(:current_user)
       raise "unknown options: #{opts}" unless opts.empty?
     end
     
