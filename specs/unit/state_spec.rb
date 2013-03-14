@@ -17,26 +17,24 @@ describe 'State' do
     ]
   end
   
-  # it 'can be dumped and restored' do
-  #   state = AS::State.new(@user)
-  #   data = state.dump
-  #   p data
-  #   state2 = AS::State.load(data)
+  it 'can be dumped and restored' do
+    state = AS::State.new(@user)
+    data = AS::State.dump(state)
+    state2 = AS::State.load(data)
     
     
-  #   state2.folders.size.should == 2
-  #   state2.folders.should == [
-  #     AS::State::Folder.new(2, 'r56b'),
-  #     AS::State::Folder.new(4, 'y7lo21')
-  #   ]
-  # end
+    state2.folders.size.should == 2
+    state2.folders.should == [
+      AS::State::Folder.new(2, 'r56b'),
+      AS::State::Folder.new(4, 'y7lo21')
+    ]
+  end
   
   describe 'folders compare' do
     should 'find created' do
       state = AS::State.new(@user)
       @user.addressbooks << Testing::AddressBook.new(id: 3, etag: "test")
       state2 = AS::State.new(@user)
-      
       created, deleted, updated = state.compare_folders(state2)
       created.should == [AS::State::Folder.new(3, 'test')]
       deleted.should == []

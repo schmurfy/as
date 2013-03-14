@@ -1,5 +1,19 @@
 module AS
+  
+  
+  module StateSerializer
+    def load(data)
+      Marshal.load(data)
+    end
+    
+    def dump(obj)
+      Marshal.dump(obj)
+    end
+  end
+  
   class State
+    extend StateSerializer
+    
     Contact = Struct.new(:id, :etag)
     class Folder < Struct.new(:id, :etag, :contacts)
       def initialize(*args)
@@ -68,15 +82,6 @@ module AS
 
       
       [created, deleted, updated]
-    end
-    
-    
-    def dump
-      Ox.dump(self)
-    end
-    
-    def self.load(data)
-      Ox.parse(data)
     end
     
     
