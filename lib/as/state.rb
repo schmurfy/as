@@ -40,6 +40,10 @@ module AS
       end
     end
     
+    def ==(other)
+      folders == other.folders
+    end
+    
     def compare_folders(new_state)
       created = new_state.folders.select do |f|
         find_folder(f.id) == nil
