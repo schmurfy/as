@@ -26,7 +26,7 @@ module AS
       end
     end
     
-    attr_reader :id, :folders, :folder_id
+    attr_reader :id, :folders
     
     def initialize(user = nil, folder_id = nil)
       if user
