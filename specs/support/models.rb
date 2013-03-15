@@ -134,8 +134,8 @@ module Testing
       end
     end
     
-    def current_state
-      SavedState.new(state: AS::State.new(self))
+    def current_state(folder_id = nil)
+      SavedState.new(state: AS::State.new(self, folder_id))
     end
         
     
