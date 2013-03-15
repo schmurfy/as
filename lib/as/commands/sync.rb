@@ -85,8 +85,8 @@ module AS
         end
       end
       
-      def update_saved_state(sync_key, new_state)
-        current_user.update_savedstate(:contacts, sync_key, new_state)
+      def update_saved_state(old_state, new_state)
+        current_user.update_savedstate(:contacts, old_state, new_state)
       end
       
       def collection_error(n, state, folder_id)        
@@ -153,7 +153,7 @@ module AS
             if @status == STATUS_OK
               begin
                 collection_ok(n, state, folder_id)
-                update_saved_state(state.id, current_state())
+                update_saved_state(state, current_state())
               rescue AS::UnknownFolderId
                 @status = STATUS_HIERARCHY_CHANGED
                 collection_error(n, state, folder_id)

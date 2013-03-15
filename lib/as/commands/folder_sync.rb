@@ -34,8 +34,8 @@ module AS
         @sync_key ||= @xml.locate('*/SyncKey/?[0]').first
       end
       
-      def update_saved_state(key, new_state)
-        current_user.update_savedstate(:folders, key, new_state)
+      def update_saved_state(old_state, new_state)
+        current_user.update_savedstate(:folders, old_state, new_state)
       end
 
       
@@ -52,7 +52,7 @@ module AS
         state = savedstate()
         
         created, deleted, updated = state.compare_folders(current_state())
-        update_saved_state(state.id, current_state())
+        update_saved_state(state, current_state())
         
         fs << node('SyncKey', state.id )
         fs << node('Changes') do |c|

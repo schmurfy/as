@@ -120,16 +120,18 @@ module Testing
       end
     end
     
-    def update_savedstate(type, key, new_state)
-      raise "Invalid key: #{key}" if key == '0'
+    def update_savedstate(type, old_state, new_state)
+      unless old_state && new_state
+        raise ArgumentError, "bot states required"
+      end
       
       if type == :folders
-        self.folder_states = (folder_states || []).reject{|s| s.id == key }
-        new_state.id = key
+        self.folder_states = (folder_states || []).reject{|s| s.id == old_state.id }
+        new_state.id = old_state.id
         self.folder_states << new_state
       else
-        self.contact_states = (contact_states || []).reject{|s| s.id == key }
-        new_state.id = key
+        self.contact_states = (contact_states || []).reject{|s| s.id == old_state.id }
+        new_state.id = old_state.id
         self.contact_states << new_state
       end
     end
