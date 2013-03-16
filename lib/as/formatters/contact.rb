@@ -17,7 +17,10 @@ module AS
       
       def to_xml(data)
         attributes_mapping.each do |as_name, accessor_name|
-          data << node(as_name, send(accessor_name), xmlns: 'Contacts:')
+          value = send(accessor_name)
+          if value != nil
+            data << node(as_name, value, xmlns: 'Contacts:')
+          end
         end
         
       end
