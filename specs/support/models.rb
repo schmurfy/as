@@ -34,7 +34,7 @@ module Testing
       
     end
     
-    def save!
+    def save
       self.etag = SecureRandom.hex(8)
     end    
   end

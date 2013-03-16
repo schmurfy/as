@@ -34,7 +34,7 @@ module AS
                 contact = current_user.find_contact(collection_id, id)
                 if contact
                   contact.update_from_xml(data[0])
-                  contact.save!
+                  contact.save
                 else
                   raise "unknown contact: #{id}"
                 end
@@ -48,7 +48,7 @@ module AS
                 
                 contact = current_user.create_contact(collection_id)
                 contact.update_from_xml(data[0])
-                contact.save!
+                contact.save
                 @just_created[contact.id] = client_id
               end
             end
