@@ -51,7 +51,8 @@ module AS
     def post(req, response)
       response.header['Content-Type'] = 'application/vnd.ms-sync.wbxml'
       
-      r = Ox.parse(req.body.read)
+      data = req.body.read
+      r = Ox.parse(data)
       cmd = nil
       
       case r.nodes[1].value

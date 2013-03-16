@@ -49,8 +49,8 @@ $user = Testing::User.new(
     id: 1,
     login: 'test.user',
     addressbooks: [
-      $addr1,
-      $addr2
+      $addr1#,
+      # $addr2
     ]
   )
 
@@ -75,7 +75,11 @@ class AppAuthentifier < Rack::Auth::Basic
   end
 end
 
-app = AS::Handler.new()
+def current_user(req)
+  req.env['as.user']
+end
+
+app = AS::Handler.new(current_user: method(:current_user))
 
 use Rack::FiberPool, size: 20
 

@@ -122,7 +122,7 @@ module Testing
     
     def update_savedstate(type, old_state, new_state)
       unless old_state && new_state
-        raise ArgumentError, "bot states required"
+        raise ArgumentError, "both states required"
       end
       
       if type == :folders
