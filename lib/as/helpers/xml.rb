@@ -23,12 +23,11 @@ module AS
           end
         end
       end
-      
-      
-      def find_text_node(root_element, path)
+            
+      def find_text_node(root_element, path, converter = nil)
         tmp = root_element.locate("#{path}/?[0]")
         if tmp
-          tmp[0]
+          converter ? tmp[0].send(converter) : tmp[0]
         else
           nil
         end

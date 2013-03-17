@@ -36,7 +36,7 @@ describe 'Commands::Sync' do
             <Class>Contacts</Class>
             <SyncKey>0</SyncKey>
             <CollectionId>#{book.id}</CollectionId>
-            <WindowSize>4</WindowSize>
+            <WindowSize>40</WindowSize>
           </Collection>
         </Collections>
       </Sync>
@@ -70,7 +70,13 @@ describe 'Commands::Sync' do
         </Collections>
       </Sync>
     EOS
-    
+  end
+  
+  should 'returns no changes' do
+    book = @books[0]
+    state = @user.create_savedtstate()
+    @user.update_savedstate(:contacts, state, @user.current_state())
+
     
     # another request should return nothing
     response = as_request('Sync', <<-EOS)
@@ -103,7 +109,305 @@ describe 'Commands::Sync' do
         </Collections>
       </Sync>
     EOS
+  end
+  
+  should 'honor WindowSize on create' do
+    book = @books[0]
     
+    book.contacts << build(:contact)
+    book.contacts << build(:contact)
+    
+    book.contacts.size.should == 3
+    
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <WindowSize>2</WindowSize>
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>0</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    @user.contact_states.size.should == 1
+    state = @user.contact_states[0]
+    
+    
+    c1 = book.contacts[0]
+    c2 = book.contacts[1]
+    c3 = book.contacts[2]
+    c1_xml = build_contact_xml(c1, 16)
+    c2_xml = build_contact_xml(c2, 16)
+    c3_xml = build_contact_xml(c3, 16)
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <MoreAvailable></MoreAvailable>
+            <Commands>
+              <Add>
+                <ServerId>#{c1.id}</ServerId>
+                #{c1_xml}
+              </Add>
+              <Add>
+                <ServerId>#{c2.id}</ServerId>
+                #{c2_xml}
+              </Add>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    
+    
+    
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <WindowSize>2</WindowSize>
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <Commands>
+              <Add>
+                <ServerId>#{c3.id}</ServerId>
+                #{c3_xml}
+              </Add>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+  end
+  
+  should 'honor WindowSize on updates' do
+    book = @books[0]
+    book.contacts << build(:contact)
+    book.contacts << build(:contact)
+    
+    state = @user.create_savedtstate()
+    @user.update_savedstate(:contacts, state, @user.current_state())
+    
+    book.contacts.size.should == 3
+    
+    c1 = book.contacts[0]
+    c2 = book.contacts[1]
+    c3 = book.contacts[2]
+    
+    c1.etag = SecureRandom.hex(4)    
+    c2.etag = SecureRandom.hex(4)    
+    c3.etag = SecureRandom.hex(4)    
+
+    
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <WindowSize>2</WindowSize>
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+        
+    c1_xml = build_contact_xml(c1, 16)
+    c2_xml = build_contact_xml(c2, 16)
+    c3_xml = build_contact_xml(c3, 16)
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <MoreAvailable></MoreAvailable>
+            <Commands>
+              <Change>
+                <ServerId>#{c1.id}</ServerId>
+                #{c1_xml}
+              </Change>
+              <Change>
+                <ServerId>#{c2.id}</ServerId>
+                #{c2_xml}
+              </Change>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    
+    
+    
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <WindowSize>2</WindowSize>
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <Commands>
+              <Change>
+                <ServerId>#{c3.id}</ServerId>
+                #{c3_xml}
+              </Change>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+  end
+  
+  
+  should 'honor WindowSize on delete' do
+    book = @books[0]
+    book.contacts << build(:contact)
+    book.contacts << build(:contact)
+    
+    state = @user.create_savedtstate()
+    @user.update_savedstate(:contacts, state, @user.current_state())
+    
+    book.contacts.size.should == 3
+    
+    c1 = book.contacts[0]
+    c2 = book.contacts[1]
+    c3 = book.contacts[2]
+    
+    book.contacts = []
+    
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <WindowSize>2</WindowSize>
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+        
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <MoreAvailable></MoreAvailable>
+            <Commands>
+              <Delete>
+                <ServerId>#{c1.id}</ServerId>
+              </Delete>
+              <Delete>
+                <ServerId>#{c2.id}</ServerId>
+              </Delete>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    
+    
+    
+    response = as_request('Sync', <<-EOS)
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <WindowSize>2</WindowSize>
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
+    
+    response.status.should == 200
+    response.body.should == unindent(<<-EOS )
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+      <Sync xmlns="AirSync:">
+        <Collections>
+          <Collection>
+            <Class>Contacts</Class>
+            <SyncKey>#{state.id}</SyncKey>
+            <CollectionId>#{book.id}</CollectionId>
+            <Status>1</Status>
+            <Commands>
+              <Delete>
+                <ServerId>#{c3.id}</ServerId>
+              </Delete>
+            </Commands>
+          </Collection>
+        </Collections>
+      </Sync>
+    EOS
   end
   
   

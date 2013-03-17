@@ -14,6 +14,11 @@ module AS
         # used to store temporary client_id
         @just_created = {}
         
+        @windowsize = find_text_node(@xml, 'Sync/WindowSize', :to_i)
+        if !@windowsize || (@windowsize == 0)
+          @windowsize = 512
+        end
+        
         # check if the client ent some changes
         @xml.locate('Sync/Collections/Collection').each do |collection|
           collection_id = find_text_node(collection, 'CollectionId')
@@ -85,8 +90,8 @@ module AS
         end
       end
       
-      def update_saved_state(old_state, new_state)
-        current_user.update_savedstate(:contacts, old_state, new_state)
+      def update_saved_state(old_state)
+        current_user.update_savedstate(:contacts, old_state)
       end
       
       def collection_error(n, state, folder_id)        
@@ -95,6 +100,10 @@ module AS
         n << node('Status', @status)
       end
       
+      def window_full?(change = 0)
+        @windowsize += change
+        (@windowsize <= 0)
+      end
       
       def collection_ok(n, state, folder_id)
         n << node('Class', @klass)
@@ -104,10 +113,16 @@ module AS
         
         created, deleted, updated = state.compare_contacts(folder_id, current_state())
         
+        folder = current_user.find_addressbook(folder_id)
+        
+        if created.size + deleted.size + updated.size > @windowsize
+          n << node('MoreAvailable')
+        end
         
         n << node('Commands') do |cmds|
           created.each do |cached_contact|
-            contact = current_user.find_contact(folder_id, cached_contact.id)
+            contact = folder.find_contact(cached_contact.id)
+            
             cmds << node('Add') do |a|
               a << node('ServerId', contact.id)
               
@@ -117,21 +132,31 @@ module AS
               
               a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
             end
-          end
+            
+            state.add_contact(folder, contact)
+            break if window_full?(-1)
+          end unless window_full?
           
           updated.each do |cached_contact|
-            contact = current_user.find_contact(folder_id, cached_contact.id)
+            contact = folder.find_contact(cached_contact.id)
+            
             cmds << node('Change') do |a|
               a << node('ServerId', contact.id)
               a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
             end
-          end
+            
+            state.update_contact(folder, contact)
+            break if window_full?(-1)
+          end unless window_full?
           
           deleted.each do |cached_contact|
             cmds << node('Delete') do |a|
               a << node('ServerId', cached_contact.id)
             end
-          end
+            
+            state.remove_contact(folder, cached_contact.id)
+            break if window_full?(-1)
+          end unless window_full?
           
         end
       end
@@ -153,8 +178,8 @@ module AS
             if @status == STATUS_OK
               begin
                 collection_ok(n, state, folder_id)
-                update_saved_state(state, current_state())
-              rescue AS::UnknownFolderId
+                update_saved_state(state)
+              rescue UnknownFolderId
                 @status = STATUS_HIERARCHY_CHANGED
                 collection_error(n, state, folder_id)
               end

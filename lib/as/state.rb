@@ -40,6 +40,29 @@ module AS
       end
     end
     
+    def add_contact(folder, contact)
+      f = find_folder(folder.id)
+      unless f
+        f = Folder.new(folder.id, folder.etag)
+        @folders << f
+      end
+      
+      f.contacts << Contact.new(contact.id, contact.etag)
+    end
+    
+    def update_contact(folder, contact)
+      f = find_folder(folder.id)
+      c = f.find_contact(contact.id)
+      c.etag = contact.etag
+    end
+    
+    def remove_contact(folder, contact_id)
+      f = find_folder(folder.id)
+      f.contacts = f.contacts.reject do |c|
+        c.id == contact_id
+      end
+    end
+    
     def ==(other)
       folders == other.folders
     end

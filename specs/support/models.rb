@@ -78,17 +78,9 @@ module Testing
     attribute :id, String
     attribute :state, AS::State
     
-    def compare_folders(new_state)
-      state.compare_folders(new_state.state)
-    end
-    
-    def compare_contacts(folder_id, new_state)
-      state.compare_contacts(folder_id, new_state.state)
-    end
-    
-    def folder_id
-      state.folder_id
-    end
+    def method_missing(m, *args)
+      state.send(m, *args)
+    end    
   end
   
 
@@ -120,7 +112,7 @@ module Testing
       end
     end
     
-    def update_savedstate(type, old_state, new_state)
+    def update_savedstate(type, old_state, new_state = old_state)
       unless old_state && new_state
         raise ArgumentError, "both states required"
       end
