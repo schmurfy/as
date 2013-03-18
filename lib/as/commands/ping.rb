@@ -46,10 +46,7 @@ module AS
         p << node('Status', STATUS_CHANGED)
         p << node('Folders') do |folders|
           changed.each do |id|
-            folders << node('Folder') do |f|
-              f << node('Id', id)
-              f << node('Class', 'Contacts')
-            end
+            folders << node('Folder', id)
           end
         end
       end

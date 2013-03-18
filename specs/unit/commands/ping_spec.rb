@@ -88,10 +88,7 @@ describe 'Commands::Ping' do
       <Ping xmlns="Ping:">
         <Status>#{AS::Commands::Ping::STATUS_CHANGED}</Status>
         <Folders>
-          <Folder>
-            <Id>34</Id>
-            <Class>Contacts</Class>
-          </Folder>
+          <Folder>34</Folder>
         </Folders>
       </Ping>
     EOS
