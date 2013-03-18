@@ -18,16 +18,20 @@ module AS
           folder_ids << id
         end
         
+        @logger.log("[Ping] Waiting for changes on #{folder_ids} for #{timeout}s")
         
         changed = Watcher.instance.wait_for_changes(current_user.id, folder_ids, timeout)
         
         body = xml do |root|
           root << node('Ping', nil, xmlns: 'Ping:') do |p|
             if changed == :resync
+              @logger.log("[Ping] Resumed, resync required")
               simple_response(p, STATUS_FOLDERSYNC_REQUIRED)
             elsif changed.empty?
+              @logger.log("[Ping] Resumed after timeout")
               simple_response(p, STATUS_TIMEOUT)
             else
+              @logger.log("[Ping] Resumed with #{changed.size} changes")
               changes_response(p, changed)
             end
           end

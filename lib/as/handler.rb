@@ -5,11 +5,20 @@ module AS
   FOLDER_NS = "FolderHierarchy:"
   AIRSYNC_NS = "AirSync:"
   
-  
+  class DummyLogger
+    def log(*)
+      
+    end
+    
+    def with_context(*)
+      yield
+    end
+  end
   
   class Handler
     def initialize(opts = {})
       @current_user = opts.delete(:current_user)
+      @logger = opts.delete(:logger) || DummyLogger.new
       raise "unknown options: #{opts}" unless opts.empty?
     end
     
@@ -65,7 +74,11 @@ module AS
         
         
         if cmd
-          cmd.new(r, req, response, @current_user).handle!
+          @logger.with_context(cmd: cmd) do
+            cmd.new(r, req, response, @current_user, @logger).handle!
+          end
+          
+          @logger.log("Request completed.")
         end
       else
         p [:parse_error, data]
