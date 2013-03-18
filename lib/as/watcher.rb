@@ -34,11 +34,13 @@ module AS
         @watchers[id] << fb
       end
       
-      EM::add_timer(timeout) do
+      timer = EM::add_timer(timeout) do
         fb.resume([])
       end
       
-      Fiber.yield
+      ret = Fiber.yield
+      EM::cancel_timer(timer)
+      ret
     ensure
       @watching_users.delete(user_id)
       folder_ids.each do |id|
