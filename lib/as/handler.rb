@@ -53,20 +53,23 @@ module AS
       
       data = req.body.read
       r = Ox.parse(data)
-      cmd = nil
-      
-      case r.nodes[1].value
-      when "FolderSync"   then cmd = Commands::FolderSync
-      when "Sync"         then cmd = Commands::Sync
-      when "Ping"         then cmd = Commands::Ping
-      when "Search"       then cmd = Commands::Search
+      if r
+        cmd = nil
+        
+        case r.nodes[1].value
+        when "FolderSync"   then cmd = Commands::FolderSync
+        when "Sync"         then cmd = Commands::Sync
+        when "Ping"         then cmd = Commands::Ping
+        when "Search"       then cmd = Commands::Search
+        end
+        
+        
+        if cmd
+          cmd.new(r, req, response, @current_user).handle!
+        end
+      else
+        p [:parse_error, data]
       end
-      
-      
-      if cmd
-        cmd.new(r, req, response, @current_user).handle!
-      end
-      
     end
     
   private
