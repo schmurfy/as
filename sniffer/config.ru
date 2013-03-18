@@ -6,7 +6,8 @@ require 'net/http'
 require 'net/https'
 require 'rack'
 
-require File.expand_path('../../example/sniffer', __FILE__)
+require 'as'
+require 'as/debug/sniffer'
  
 Net::HTTP.version_1_2 # Sorry if this causes anyone an issue...
  
