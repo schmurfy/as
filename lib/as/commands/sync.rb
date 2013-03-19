@@ -16,7 +16,11 @@ module AS
         
         @windowsize = find_text_node(@xml, 'Sync/WindowSize', :to_i)
         if !@windowsize || (@windowsize == 0)
-          @windowsize = 512
+          # UA: Android/0.3   expects 4 as default
+          # specs specify it should be 512
+          # @windowsize = 512
+          
+          @windowsize = 4
         end
         
         # check if the client ent some changes
