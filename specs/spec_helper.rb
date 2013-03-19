@@ -50,10 +50,15 @@ module MyHelpers
   end
 
   
-  def as_request(cmd, body, user = "bob", deviceid = "k456", devicetype = "Phone")
+  def as_request(cmd, body, opts = {})
+    user = opts.delete(:user) || 'bob'
+    deviceid = opts.delete(:deviceid) || 'k456'
+    devicetype = opts.delete(:devicetype) || 'Phone'
+    user_agent = opts.delete(:user_agent) || 'Dummy'
+    
     request(:post, "/Microsoft-Server-ActiveSync?Cmd=#{cmd}&User=#{user}&DeviceId=#{deviceid}&DeviceType=#{devicetype}",
         'MS-ASProtocolVersion:' => '14.0',
-        'User-Agent' => 'Dummy',
+        'HTTP_USER_AGENT'       => user_agent,
         input: body
       )
 
