@@ -124,8 +124,8 @@ module AS
         end
         
         n << node('Commands') do |cmds|
-          created.each do |cached_contact|
-            contact = folder.find_contact(cached_contact.id)
+          created.each do |cached_id, cached_etag|
+            contact = folder.find_contact(cached_id)
             
             cmds << node('Add') do |a|
               a << node('ServerId', contact.id)
@@ -141,8 +141,8 @@ module AS
             break if window_full?(-1)
           end unless window_full?
           
-          updated.each do |cached_contact|
-            contact = folder.find_contact(cached_contact.id)
+          updated.each do |cached_id, cached_etag|
+            contact = folder.find_contact(cached_id)
             
             cmds << node('Change') do |a|
               a << node('ServerId', contact.id)
@@ -153,12 +153,12 @@ module AS
             break if window_full?(-1)
           end unless window_full?
           
-          deleted.each do |cached_contact|
+          deleted.each do |cached_id, cached_etag|
             cmds << node('Delete') do |a|
-              a << node('ServerId', cached_contact.id)
+              a << node('ServerId', cached_id)
             end
             
-            state.remove_contact(folder, cached_contact.id)
+            state.remove_contact(folder, cached_id)
             break if window_full?(-1)
           end unless window_full?
           

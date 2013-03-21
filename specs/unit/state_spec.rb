@@ -99,9 +99,9 @@ describe 'State' do
       state2 = AS::State.new(@user)
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
-      created.should == [AS::State::Contact.new(new_contact.id, new_contact.etag)]
-      deleted.should == []
-      updated.should == []
+      created.should == {new_contact.id => new_contact.etag}
+      deleted.should == {}
+      updated.should == {}
     end
     
     should 'find deleted' do
@@ -111,9 +111,9 @@ describe 'State' do
       state2 = AS::State.new(@user)
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
-      created.should == []
-      deleted.should == [AS::State::Contact.new(target.id, target.etag)]
-      updated.should == []
+      created.should == {}
+      deleted.should == {target.id => target.etag}
+      updated.should == {}
     end
     
     should 'find updated' do
@@ -124,9 +124,9 @@ describe 'State' do
       state2 = AS::State.new(@user)
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
-      created.should == []
-      deleted.should == []
-      updated.should == [AS::State::Contact.new(target.id, 'something_else')]
+      created.should == {}
+      deleted.should == {}
+      updated.should == {target.id => 'something_else'}
     end
     
     should 'find created, deted and updated scoped by folder' do
@@ -141,14 +141,14 @@ describe 'State' do
       state2 = AS::State.new(@user)
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
-      created.should == []
-      deleted.should == []
-      updated.should == [AS::State::Contact.new(update_target.id, update_target.etag)]
+      created.should == {}
+      deleted.should == {}
+      updated.should == {update_target.id => update_target.etag}
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[1].id, state2)
-      created.should == [AS::State::Contact.new(created_target.id, created_target.etag)]
-      deleted.should == [AS::State::Contact.new(delete_target.id, delete_target.etag)]
-      updated.should == []
+      created.should == {created_target.id => created_target.etag}
+      deleted.should == {delete_target.id => delete_target.etag}
+      updated.should == {}
     end
     
   end

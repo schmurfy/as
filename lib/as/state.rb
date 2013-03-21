@@ -18,12 +18,21 @@ module AS
     class Folder < Struct.new(:id, :etag, :contacts)
       def initialize(*args)
         super
-        self.contacts ||= []
+        self.contacts ||= {}
       end
       
       def find_contact(id)
-        contacts.detect{|o| o.id == id }
+        contacts[id]
       end
+      
+      def set_contact(id, etag)
+        contacts[id] = etag
+      end
+      
+      def remove_contact(id)
+        contacts.delete(id)
+      end
+            
     end
     
     attr_reader :id, :folders
@@ -31,7 +40,11 @@ module AS
     def initialize(user = nil, folder_id = nil)
       if user
         @folders = user.addressbooks.select{|f| !folder_id || (f.id == folder_id) }.map do |book|
-          contacts = book.contacts.map{|c| Contact.new(c.id, c.etag) }
+          contacts = book.contacts.inject({}) do |ret, c|
+            ret[c.id] = c.etag
+            ret
+          end
+          
           Folder.new(book.id, book.etag, contacts)
         end
         
@@ -47,20 +60,17 @@ module AS
         @folders << f
       end
       
-      f.contacts << Contact.new(contact.id, contact.etag)
+      f.set_contact(contact.id, contact.etag)
     end
     
     def update_contact(folder, contact)
       f = find_folder(folder.id)
-      c = f.find_contact(contact.id)
-      c.etag = contact.etag
+      f.set_contact(contact.id, contact.etag)
     end
     
     def remove_contact(folder, contact_id)
       f = find_folder(folder.id)
-      f.contacts = f.contacts.reject do |c|
-        c.id == contact_id
-      end
+      f.remove_contact(contact_id)
     end
     
     def ==(other)
@@ -94,17 +104,17 @@ module AS
         raise AS::UnknownFolderId, folder_id
       end
       
-      created = new_folder.contacts.select do |c|
-        folder.find_contact(c.id) == nil
+      created = new_folder.contacts.select do |id, _|
+        folder.find_contact(id) == nil
       end
       
-      deleted = folder.contacts.select do |c|
-        new_folder.find_contact(c.id) == nil
+      deleted = folder.contacts.select do |id, _|
+        new_folder.find_contact(id) == nil
       end
       
-      updated = new_folder.contacts.select do |c|
-        my_contact = folder.find_contact(c.id)
-        my_contact && (my_contact.etag != c.etag)
+      updated = new_folder.contacts.select do |id, etag|
+        my_etag = folder.find_contact(id)
+        my_etag && (my_etag != etag)
       end
 
       
