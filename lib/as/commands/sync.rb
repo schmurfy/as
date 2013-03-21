@@ -109,15 +109,13 @@ module AS
         (@windowsize <= 0)
       end
       
-      def collection_ok(n, state, folder_id)
+      def collection_ok(n, state, folder)
         n << node('Class', @klass)
         n << node('SyncKey', state.id)
-        n << node('CollectionId', folder_id)
+        n << node('CollectionId', folder.id)
         n << node('Status', @status)
         
-        created, deleted, updated = state.compare_contacts(folder_id, current_state())
-        
-        folder = current_user.find_addressbook(folder_id)
+        created, deleted, updated = state.compare_contacts(folder.id, current_state())
         
         if created.size + deleted.size + updated.size > @windowsize
           n << node('MoreAvailable')
@@ -173,15 +171,20 @@ module AS
           @klass = find_text_node(c, 'Class') || 'Contacts'
           
           state = savedstate(sync_key, folder_id)
+          folder = current_user.find_addressbook(folder_id)
           
           if state == nil
             @status = STATUS_SYNC_KEY_ERROR
           end
           
+          if folder == nil
+            @status = STATUS_HIERARCHY_CHANGED
+          end
+          
           fs << node('Collection') do |n|
             if @status == STATUS_OK
               begin
-                collection_ok(n, state, folder_id)
+                collection_ok(n, state, folder)
                 update_saved_state(state)
               rescue UnknownFolderId
                 @status = STATUS_HIERARCHY_CHANGED
