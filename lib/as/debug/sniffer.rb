@@ -100,7 +100,6 @@ require 'as/wbxml'
 
 class WBXMLSniffer < XMLSniffer
   def initialize(app, language = :activesync)
-    @counter = 0
     @app = app
     @decoder = AS::WBXML::Decoder.new
     @decoder.set_language(language)
@@ -108,8 +107,6 @@ class WBXMLSniffer < XMLSniffer
   end
   
   def decode_body(data)
-    File.write("/tmp/sniffer#{@counter}.dat", data)
-    @counter += 1
     @decoder.decode(data)
   end
   

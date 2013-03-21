@@ -122,7 +122,6 @@ module AS
         if response.body.size > 0
           data = @encoder.encode(response.body[0])
           response.body[0] = data
-          File.write('/tmp/dump.wbxml', data)
           headers['Content-Length'] = data.bytesize.to_s
         else
           headers['Content-Length'] = "0"
