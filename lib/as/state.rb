@@ -22,7 +22,6 @@ module AS
   class State
     extend StateSerializer
     
-    Contact = Struct.new(:id, :etag)
     class Folder < Struct.new(:id, :etag, :contacts)
       def initialize(*args)
         super
@@ -47,12 +46,12 @@ module AS
             
     end
     
-    attr_reader :id, :folders
+    attr_reader :folders
     
     def initialize(folders = [])
       @folders = folders
     end
-    
+        
     def add_contact(folder, contact)
       f = find_folder(folder.id)
       unless f
