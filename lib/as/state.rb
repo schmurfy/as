@@ -92,19 +92,21 @@ module AS
         raise AS::UnknownFolderId, folder_id
       end
       
-      created = new_folder.contacts.select do |id, _|
-        folder.find_contact(id) == nil
-      end
+      created = {}
+      updated = {}
       
       deleted = folder.contacts.select do |id, _|
         new_folder.find_contact(id) == nil
       end
       
-      updated = new_folder.contacts.select do |id, etag|
-        my_etag = folder.find_contact(id)
-        my_etag && (my_etag != etag)
+      new_folder.contacts.each do |id, etag|
+        my_etag  = folder.find_contact(id)
+        if my_etag == nil
+          created[id] = etag
+        elsif my_etag != etag
+          updated[id] = etag
+        end
       end
-
       
       [created, deleted, updated]
     end
