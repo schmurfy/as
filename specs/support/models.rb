@@ -93,7 +93,7 @@ module Testing
     attribute :contact_states, Array[SavedState], default: []
     
     def create_savedtstate(folder_id = nil)
-      s = SavedState.new(id: SecureRandom.hex(4), state: AS::State.new(nil, folder_id))
+      s = SavedState.new(id: SecureRandom.hex(4), state: AS::State.new)
       
       if folder_id
         self.contact_states << s
@@ -129,7 +129,16 @@ module Testing
     end
     
     def current_state(folder_id = nil)
-      SavedState.new(state: AS::State.new(self, folder_id))
+      folders = addressbooks.select{|f| !folder_id || (f.id == folder_id) }.map do |book|
+        contacts = book.contacts.inject({}) do |ret, c|
+          ret[c.id] = c.etag
+          ret
+        end
+        
+        AS::State::Folder.new(book.id, book.etag, contacts)
+      end
+      
+      SavedState.new(state: AS::State.new(folders))
     end
         
     

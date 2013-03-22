@@ -37,20 +37,8 @@ module AS
     
     attr_reader :id, :folders
     
-    def initialize(user = nil, folder_id = nil)
-      if user
-        @folders = user.addressbooks.select{|f| !folder_id || (f.id == folder_id) }.map do |book|
-          contacts = book.contacts.inject({}) do |ret, c|
-            ret[c.id] = c.etag
-            ret
-          end
-          
-          Folder.new(book.id, book.etag, contacts)
-        end
-        
-      else
-        @folders = []
-      end
+    def initialize(folders = [])
+      @folders = folders
     end
     
     def add_contact(folder, contact)

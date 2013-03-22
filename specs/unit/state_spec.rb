@@ -9,7 +9,7 @@ describe 'State' do
   end
   
   it 'can build state from user' do
-    state = AS::State.new(@user)
+    state = @user.current_state()
     state.folders.size.should == 2
     state.folders.should == [
       AS::State::Folder.new(2, 'r56b'),
@@ -18,7 +18,7 @@ describe 'State' do
   end
   
   it 'can be dumped and restored' do
-    state = AS::State.new(@user)
+    state = @user.current_state()
     data = AS::State.dump(state)
     state2 = AS::State.load(data)
     
@@ -32,9 +32,9 @@ describe 'State' do
   
   describe 'folders compare' do
     should 'find created' do
-      state = AS::State.new(@user)
+      state = @user.current_state()
       @user.addressbooks << Testing::AddressBook.new(id: 3, etag: "test")
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       created, deleted, updated = state.compare_folders(state2)
       created.should == [AS::State::Folder.new(3, 'test')]
       deleted.should == []
@@ -42,9 +42,9 @@ describe 'State' do
     end
     
     should 'find deleted' do
-      state = AS::State.new(@user)
+      state = @user.current_state()
       @user.addressbooks.shift
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_folders(state2)
       created.should == []
@@ -53,9 +53,9 @@ describe 'State' do
     end
     
     should 'find updated' do
-      state = AS::State.new(@user)
+      state = @user.current_state()
       @user.addressbooks[1].etag = 'castor'
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_folders(state2)
       created.should == []
@@ -64,11 +64,11 @@ describe 'State' do
     end
     
     should 'find created, deted and updated' do
-      state = AS::State.new(@user)
+      state = @user.current_state()
       @user.addressbooks[1].etag = 'uzrt'
       @user.addressbooks << Testing::AddressBook.new(id: 35, etag: "test")
       @user.addressbooks.shift
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_folders(state2)
       created.should == [AS::State::Folder.new(35, 'test')]
@@ -92,11 +92,11 @@ describe 'State' do
     end
     
     should 'find created' do
-      state = AS::State.new(@user)
+      state = @user.current_state()
       new_contact = build(:contact)
       
       @user.addressbooks[0].contacts << new_contact
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
       created.should == {new_contact.id => new_contact.etag}
@@ -106,9 +106,9 @@ describe 'State' do
     
     should 'find deleted' do
       target = @user.addressbooks[0].contacts[0]
-      state = AS::State.new(@user)
+      state = @user.current_state()
       @user.addressbooks[0].contacts.shift
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
       created.should == {}
@@ -119,9 +119,9 @@ describe 'State' do
     should 'find updated' do
       target = @user.addressbooks[0].contacts[1]
       
-      state = AS::State.new(@user)
+      state = @user.current_state()
       target.etag = 'something_else'
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
       created.should == {}
@@ -134,11 +134,11 @@ describe 'State' do
       update_target = @user.addressbooks[0].contacts[0]
       created_target = build(:contact)
       
-      state = AS::State.new(@user)
+      state = @user.current_state()
       update_target.etag = 'uzrt'
       @user.addressbooks[1].contacts.shift
       @user.addressbooks[1].contacts << created_target
-      state2 = AS::State.new(@user)
+      state2 = @user.current_state()
       
       created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
       created.should == {}
