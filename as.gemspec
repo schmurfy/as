@@ -17,5 +17,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'rack'
   gem.add_dependency 'ffi'
   gem.add_dependency 'ox'
+  gem.add_dependency 'msgpack'
   # gem.add_dependency 'ffi-wbxml'
 end

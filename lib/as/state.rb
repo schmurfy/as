@@ -1,13 +1,21 @@
+require 'msgpack'
+
 module AS
   
   
   module StateSerializer
     def load(data)
-      Marshal.load(data)
+      if data
+        ret = MessagePack.unpack(data).map{|(*args)| AS::State::Folder.new(*args) }
+      else
+        ret = []
+      end
+      
+      AS::State.new(ret)
     end
     
     def dump(obj)
-      Marshal.dump(obj)
+      MessagePack.pack(obj.folders)
     end
   end
   
@@ -31,6 +39,10 @@ module AS
       
       def remove_contact(id)
         contacts.delete(id)
+      end
+      
+      def to_msgpack(packer)
+        packer.write([id, etag, contacts])
       end
             
     end
