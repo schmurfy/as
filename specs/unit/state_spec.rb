@@ -8,7 +8,12 @@ describe 'State' do
       ])
   end
   
-  it 'can build state from user' do
+  it 'can build and empty state from user' do
+    @user.addressbooks[0].contacts = [
+      build(:contact)
+    ]
+
+    
     state = @user.current_state()
     state.folders.size.should == 2
     state.folders.should == [
@@ -89,16 +94,19 @@ describe 'State' do
       @user.addressbooks[1].contacts = [
         build(:contact)
       ]
+      
+      @folder1_id = @user.addressbooks[0].id
+      @folder2_id = @user.addressbooks[1].id
     end
     
     should 'find created' do
-      state = @user.current_state()
+      state = @user.current_state(@folder1_id)
       new_contact = build(:contact)
       
       @user.addressbooks[0].contacts << new_contact
-      state2 = @user.current_state()
+      state2 = @user.current_state(@folder1_id)
       
-      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created, deleted, updated = state.compare_contacts(@folder1_id, state2)
       created.should == {new_contact.id => new_contact.etag}
       deleted.should == {}
       updated.should == {}
@@ -106,11 +114,11 @@ describe 'State' do
     
     should 'find deleted' do
       target = @user.addressbooks[0].contacts[0]
-      state = @user.current_state()
+      state = @user.current_state(@folder1_id)
       @user.addressbooks[0].contacts.shift
-      state2 = @user.current_state()
+      state2 = @user.current_state(@folder1_id)
       
-      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created, deleted, updated = state.compare_contacts(@folder1_id, state2)
       created.should == {}
       deleted.should == {target.id => target.etag}
       updated.should == {}
@@ -119,11 +127,11 @@ describe 'State' do
     should 'find updated' do
       target = @user.addressbooks[0].contacts[1]
       
-      state = @user.current_state()
+      state = @user.current_state(@folder1_id)
       target.etag = 'something_else'
-      state2 = @user.current_state()
+      state2 = @user.current_state(@folder1_id)
       
-      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      created, deleted, updated = state.compare_contacts(@folder1_id, state2)
       created.should == {}
       deleted.should == {}
       updated.should == {target.id => 'something_else'}
@@ -134,18 +142,22 @@ describe 'State' do
       update_target = @user.addressbooks[0].contacts[0]
       created_target = build(:contact)
       
-      state = @user.current_state()
+      state1 = @user.current_state(@folder1_id)
+      state2 = @user.current_state(@folder2_id)
+      
       update_target.etag = 'uzrt'
       @user.addressbooks[1].contacts.shift
       @user.addressbooks[1].contacts << created_target
-      state2 = @user.current_state()
       
-      created, deleted, updated = state.compare_contacts(@user.addressbooks[0].id, state2)
+      state12 = @user.current_state(@folder1_id)
+      created, deleted, updated = state1.compare_contacts(@folder1_id, state12)
       created.should == {}
       deleted.should == {}
       updated.should == {update_target.id => update_target.etag}
       
-      created, deleted, updated = state.compare_contacts(@user.addressbooks[1].id, state2)
+      
+      state22 = @user.current_state(@folder2_id)
+      created, deleted, updated = state2.compare_contacts(@folder2_id, state22)
       created.should == {created_target.id => created_target.etag}
       deleted.should == {delete_target.id => delete_target.etag}
       updated.should == {}

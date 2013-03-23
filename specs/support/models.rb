@@ -130,9 +130,13 @@ module Testing
     
     def current_state(folder_id = nil)
       folders = addressbooks.select{|f| !folder_id || (f.id == folder_id) }.map do |book|
-        contacts = book.contacts.inject({}) do |ret, c|
-          ret[c.id] = c.etag
-          ret
+        if folder_id
+          contacts = book.contacts.inject({}) do |ret, c|
+            ret[c.id] = c.etag
+            ret
+          end
+        else
+          contacts = {}
         end
         
         AS::State::Folder.new(book.id, book.etag, contacts)

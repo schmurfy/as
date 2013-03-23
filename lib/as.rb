@@ -14,3 +14,8 @@ require_relative 'as/commands/folder_sync'
 require_relative 'as/commands/sync'
 require_relative 'as/commands/ping'
 require_relative 'as/commands/search'
+
+
+module AS
+  UnknownFolderId = Class.new(RuntimeError)
+end

@@ -32,8 +32,8 @@ module AS
       @current_user ? @current_user.call(@req) : @req.env['as.user']
     end
     
-    def current_state
-      @current_state ||= current_user.current_state()
+    def current_state(*args)
+      current_user.current_state(*args)
     end
     
     def initial_request

@@ -7,8 +7,6 @@ module AS
       STATUS_CONFLICT           = 7   # client changes overwritten by server (NOTE: the client can open a popup ! )
       STATUS_HIERARCHY_CHANGED  = 12  # the client will send a FolderSync request to refresh
       
-      UnknownFolderId = Class.new(RuntimeError)
-      
       def handle!
         
         # used to store temporary client_id
@@ -115,7 +113,7 @@ module AS
         n << node('CollectionId', folder.id)
         n << node('Status', @status)
         
-        created, deleted, updated = state.compare_contacts(folder.id, current_state())
+        created, deleted, updated = state.compare_contacts(folder.id, current_state(folder.id))
         
         if created.size + deleted.size + updated.size > @windowsize
           n << node('MoreAvailable')

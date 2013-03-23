@@ -74,8 +74,8 @@ describe 'Commands::Sync' do
   
   should 'returns no changes' do
     book = @books[0]
-    state = @user.create_savedtstate()
-    @user.update_savedstate(:contacts, state, @user.current_state())
+    state = @user.create_savedtstate(book.id)
+    @user.update_savedstate(:contacts, state, @user.current_state(book.id))
 
     
     # another request should return nothing
@@ -216,8 +216,8 @@ describe 'Commands::Sync' do
     book.contacts << build(:contact)
     book.contacts << build(:contact)
     
-    state = @user.create_savedtstate()
-    @user.update_savedstate(:contacts, state, @user.current_state())
+    state = @user.create_savedtstate(book.id)
+    @user.update_savedstate(:contacts, state, @user.current_state(book.id))
     
     book.contacts.size.should == 3
     
@@ -321,8 +321,8 @@ describe 'Commands::Sync' do
     book.contacts << build(:contact)
     book.contacts << build(:contact)
     
-    state = @user.create_savedtstate()
-    @user.update_savedstate(:contacts, state, @user.current_state())
+    state = @user.create_savedtstate(book.id)
+    @user.update_savedstate(:contacts, state, @user.current_state(book.id))
     
     book.contacts.size.should == 3
     
@@ -425,8 +425,8 @@ describe 'Commands::Sync' do
     should 'handle creation' do
       contact = @book.contacts[0]
       
-      state = @user.create_savedtstate()
-      @user.update_savedstate(:contacts, state, @user.current_state())
+      state = @user.create_savedtstate(@book.id)
+      @user.update_savedstate(:contacts, state, @user.current_state(@book.id))
       
       response = as_request('Sync', <<-EOS)
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
@@ -486,8 +486,8 @@ describe 'Commands::Sync' do
     should 'handle change' do
       contact = @book.contacts[0]
       
-      state = @user.create_savedtstate()
-      @user.update_savedstate(:contacts, state, @user.current_state())
+      state = @user.create_savedtstate(@book.id)
+      @user.update_savedstate(:contacts, state, @user.current_state(@book.id))
       
       response = as_request('Sync', <<-EOS)
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
@@ -547,8 +547,8 @@ describe 'Commands::Sync' do
     should 'handle deletion' do
       contact = @book.contacts[0]
       
-      state = @user.create_savedtstate()
-      @user.update_savedstate(:contacts, state, @user.current_state())
+      state = @user.create_savedtstate(@book.id)
+      @user.update_savedstate(:contacts, state, @user.current_state(@book.id))
       
       response = as_request('Sync', <<-EOS)
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
