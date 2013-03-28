@@ -3,8 +3,8 @@ require File.expand_path('../../spec_helper', __FILE__)
 describe 'State' do
   before do
     @user = Testing::User.new(login: "john", addressbooks: [
-        Testing::AddressBook.new(id: 2, etag: "r56b"),
-        Testing::AddressBook.new(id: 4, etag: "y7lo21")
+        Testing::AddressBook.new(id: 2, etag: "f5bb32"),
+        Testing::AddressBook.new(id: 4, etag: "65bc72")
       ])
   end
   
@@ -17,12 +17,19 @@ describe 'State' do
     state = @user.current_state()
     state.folders.size.should == 2
     state.folders.should == [
-      AS::State::Folder.new(2, 'r56b'),
-      AS::State::Folder.new(4, 'y7lo21')
+      AS::State::Folder.new(2, 'f5bb32'),
+      AS::State::Folder.new(4, '65bc72')
     ]
   end
   
-  it 'can be dumped and restored' do
+  it 'can be dumped and restored (folders list)' do
+    
+    folder = @user.addressbooks[1]
+    folder.contacts = [
+      build(:contact, etag: 'ff6e34'),
+      build(:contact, etag: 'bc6a70'),
+    ]
+    
     state = @user.current_state()
     data = AS::State.dump(state)
     state2 = AS::State.load(data)
@@ -30,10 +37,47 @@ describe 'State' do
     
     state2.folders.size.should == 2
     state2.folders.should == [
-      AS::State::Folder.new(2, 'r56b'),
-      AS::State::Folder.new(4, 'y7lo21')
+      AS::State::Folder.new(2, 'f5bb32'),
+      AS::State::Folder.new(4, '65bc72')
     ]
   end
+  
+  should 'convert md5 string to binary' do
+    AS::State::Folder.md5_str_to_binary("ffe356").should ==
+      "\xff\xe3\x56".force_encoding('ascii-8bit')
+  end
+  
+  should 'convert md5 bonary to string' do
+    AS::State::Folder.md5_binary_to_str("\xff\xe3\x56").should ==
+      "ffe356".force_encoding('ascii-8bit')
+  end
+
+  
+  it 'can be dumped and restored (contacts list)' do
+    
+    c1 = build(:contact, etag: 'ff6e34')
+    c2 = build(:contact, etag: 'bc6a70')
+    
+    folder = @user.addressbooks[1]
+    folder.contacts = [
+      c1,
+      c2
+    ]
+    
+    state = @user.current_state(folder.id)
+    data = AS::State.dump(state)
+    state2 = AS::State.load(data)
+    
+    
+    state2.folders.size.should == 1
+    state2.folders.should == [
+      AS::State::Folder.new(4, '65bc72', {
+          c1.id => 'ff6e34',
+          c2.id => 'bc6a70'
+        })
+    ]
+  end
+
   
   describe 'folders compare' do
     should 'find created' do
@@ -53,7 +97,7 @@ describe 'State' do
       
       created, deleted, updated = state.compare_folders(state2)
       created.should == []
-      deleted.should == [AS::State::Folder.new(2, 'r56b')]
+      deleted.should == [AS::State::Folder.new(2, 'f5bb32')]
       updated.should == []
     end
     
@@ -77,7 +121,7 @@ describe 'State' do
       
       created, deleted, updated = state.compare_folders(state2)
       created.should == [AS::State::Folder.new(35, 'test')]
-      deleted.should == [AS::State::Folder.new(2, 'r56b')]
+      deleted.should == [AS::State::Folder.new(2, 'f5bb32')]
       updated.should == [AS::State::Folder.new(4, 'uzrt')]
     end
   end

@@ -6,7 +6,14 @@ module AS
   module StateSerializer
     def load(data)
       if data
-        ret = MessagePack.unpack(data).map{|(*args)| AS::State::Folder.new(*args) }
+        ret = MessagePack.unpack(data).map do |(id, etag, serialized_contacts)|
+          contacts = serialized_contacts.inject({}) do |h, (id, binary_etag)|
+            h[id] = AS::State::Folder.md5_binary_to_str(binary_etag)
+            h
+          end
+          
+          AS::State::Folder.new(id, etag, contacts)
+        end
       else
         ret = []
       end
@@ -41,7 +48,26 @@ module AS
       end
       
       def to_msgpack(packer)
-        packer.write([id, etag, contacts])
+        serialized_contacts = contacts.inject({}) do |h, (id, etag)|
+          h[id] = self.class.md5_str_to_binary(etag)
+          h
+        end
+        
+        packer.write([id, etag, serialized_contacts])
+      end
+      
+    private
+      def self.md5_binary_to_str(str)
+        str.bytes.map do |n|
+          n.to_s(16)
+        end.join
+      end
+      
+      # ff => \xff
+      def self.md5_str_to_binary(str)
+        str.chars.each_slice(2).map do |(c1, c2)|
+          "#{c1}#{c2}".to_i(16)
+        end.pack("C*")
       end
             
     end
