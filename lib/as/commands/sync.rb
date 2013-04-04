@@ -88,7 +88,7 @@ module AS
         if sync_key == '0'
           @savedstate ||= current_user.create_savedtstate(folder_id)
         else
-          @savedstate ||= current_user.load_savedstate(:contacts, sync_key)
+          @savedstate ||= current_user.load_savedstate(:contacts, sync_key, folder_id)
         end
       end
       

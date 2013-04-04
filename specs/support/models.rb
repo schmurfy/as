@@ -104,7 +104,7 @@ module Testing
       s
     end
         
-    def load_savedstate(type, key)
+    def load_savedstate(type, key, folder_id = nil)
       if type == :folders
         folder_states.detect{|s| s.id == key }
       else
