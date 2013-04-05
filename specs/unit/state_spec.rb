@@ -43,20 +43,22 @@ describe 'State' do
   end
   
   should 'convert md5 string to binary' do
-    AS::State::Folder.md5_str_to_binary("ffe356").should ==
-      "\xff\xe3\x56".force_encoding('ascii-8bit')
+    binary = "\xA0\xF2\x77\xE7\xE9\xE4\x13\x68\x43\x98\x25\xB7\xAC\x0B\xF5\x8E"
+    AS::State::Folder.md5_str_to_binary("A0F277E7E9E41368439825B7AC0BF58E").should ==
+      binary.force_encoding('ascii-8bit')
   end
   
-  should 'convert md5 bonary to string' do
-    AS::State::Folder.md5_binary_to_str("\xff\xe3\x56").should ==
-      "ffe356".force_encoding('ascii-8bit')
+  should 'convert md5 binary to string' do
+    binary = "\xA0\xF2\x77\xE7\xE9\xE4\x13\x68\x43\x98\x25\xB7\xAC\x0B\xF5\x8E"
+    AS::State::Folder.md5_binary_to_str(binary).should ==
+      "A0F277E7E9E41368439825B7AC0BF58E".force_encoding('ascii-8bit')
   end
 
   
   it 'can be dumped and restored (contacts list)' do
     
     c1 = build(:contact, etag: 'FF6E34')
-    c2 = build(:contact, etag: 'BC6A70')
+    c2 = build(:contact, etag: 'A0F277E7E9E41368439825B7AC0BF58E')
     
     folder = @user.addressbooks[1]
     folder.contacts = [
@@ -73,7 +75,7 @@ describe 'State' do
     state2.folders.should == [
       AS::State::Folder.new(4, '65bc72', {
           c1.id => 'FF6E34',
-          c2.id => 'BC6A70'
+          c2.id => 'A0F277E7E9E41368439825B7AC0BF58E'
         })
     ]
   end

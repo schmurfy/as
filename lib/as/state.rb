@@ -8,7 +8,7 @@ module AS
       if data
         ret = MessagePack.unpack(data).map do |(id, etag, serialized_contacts)|
           contacts = serialized_contacts.inject({}) do |h, (id, binary_etag)|
-            h[id] = AS::State::Folder.md5_binary_to_str(binary_etag).upcase
+            h[id] = AS::State::Folder.md5_binary_to_str(binary_etag)
             h
           end
           
@@ -59,8 +59,8 @@ module AS
     private
       def self.md5_binary_to_str(str)
         str.bytes.map do |n|
-          n.to_s(16)
-        end.join
+          n.to_s(16).rjust(2, '0')
+        end.join.upcase
       end
       
       # ff => \xff
