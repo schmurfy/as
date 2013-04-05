@@ -8,7 +8,7 @@ module AS
       if data
         ret = MessagePack.unpack(data).map do |(id, etag, serialized_contacts)|
           contacts = serialized_contacts.inject({}) do |h, (id, binary_etag)|
-            h[id] = AS::State::Folder.md5_binary_to_str(binary_etag)
+            h[id] = AS::State::Folder.md5_binary_to_str(binary_etag).upcase
             h
           end
           

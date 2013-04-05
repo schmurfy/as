@@ -55,8 +55,8 @@ describe 'State' do
   
   it 'can be dumped and restored (contacts list)' do
     
-    c1 = build(:contact, etag: 'ff6e34')
-    c2 = build(:contact, etag: 'bc6a70')
+    c1 = build(:contact, etag: 'FF6E34')
+    c2 = build(:contact, etag: 'BC6A70')
     
     folder = @user.addressbooks[1]
     folder.contacts = [
@@ -72,8 +72,8 @@ describe 'State' do
     state2.folders.size.should == 1
     state2.folders.should == [
       AS::State::Folder.new(4, '65bc72', {
-          c1.id => 'ff6e34',
-          c2.id => 'bc6a70'
+          c1.id => 'FF6E34',
+          c2.id => 'BC6A70'
         })
     ]
   end
