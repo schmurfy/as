@@ -61,7 +61,7 @@ module AS
       response.header['Content-Type'] = 'application/vnd.ms-sync.wbxml'
       
       data = req.body.read
-      r = Ox.parse(data)
+      r = Ox.load(data.force_encoding('utf-8'))
       if r
         cmd = nil
         

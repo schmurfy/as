@@ -1,14 +1,11 @@
+# encoding: utf-8
+
 require File.expand_path('../../../spec_helper', __FILE__)
 
 describe 'Formatters::Contact' do
-  
-  should 'encode contact to xml' do
-    c = build(:contact, title: 'Mr')
-    
-    parent_node = Ox::Element.new('Dummy')
-    
-    c.to_xml(parent_node)
-    Ox.dump(parent_node).should == unindent(<<-EOS)
+  before do
+    @contact = c = build(:contact, title: 'Mr', firstname: 'René')
+    @expected_xml = unindent(<<-EOS)
 
       <Dummy>
         <Title xmlns="Contacts:">#{c.title}</Title>
@@ -18,7 +15,25 @@ describe 'Formatters::Contact' do
         <CompanyName xmlns="Contacts:">#{c.company_name}</CompanyName>
       </Dummy>
     EOS
+  end
+  
+  should 'encode contact to xml' do
+    parent_node = Ox::Element.new('Dummy')
     
+    @contact.to_xml(parent_node)
+    result = Ox.dump(parent_node)
+    # ox will return an ascii-8bits string
+    result.force_encoding('utf-8').should == @expected_xml
+  end
+  
+  
+  should 'decode contact xml' do
+    node = Ox.load(@expected_xml)
+    
+    @contact.firstname = ""
+    @contact.update_from_xml(node)
+    @contact.firstname.should == "René"
+    @contact
   end
   
 end

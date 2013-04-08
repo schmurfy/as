@@ -503,7 +503,7 @@ describe 'Commands::Sync' do
                   <ServerId>#{contact.id}</ServerId>
                   <ApplicationData>
                     <LastName xmlns="Contacts:">#{contact.lastname}</LastName>
-                    <FirstName xmlns="Contacts:">Jacques</FirstName>
+                    <FirstName xmlns="Contacts:">René</FirstName>
                     <YomiFirstName xmlns="Contacts:"/>
                     <YomiLastName xmlns="Contacts:"/>
                     <Title xmlns="Contacts:"/>
@@ -519,7 +519,7 @@ describe 'Commands::Sync' do
       
       response.status.should == 200
       changed_contact_xml = build_contact_xml(contact, 18)
-      response.body.should == unindent(<<-EOS )
+      response.body.should == unindent(<<-EOS.force_encoding('utf-8') )
         <?xml version="1.0" encoding="utf-8"?>
         <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
         <Sync xmlns="AirSync:">
@@ -540,7 +540,7 @@ describe 'Commands::Sync' do
         </Sync>
       EOS
       
-      contact.firstname.should == 'Jacques'
+      contact.firstname.should == 'René'
     end
     
     
