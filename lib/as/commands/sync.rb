@@ -119,46 +119,59 @@ module AS
           n << node('MoreAvailable')
         end
         
-        n << node('Commands') do |cmds|
-          created.each do |cached_id, cached_etag|
-            contact = folder.find_contact(cached_id)
-            
-            cmds << node('Add') do |a|
-              a << node('ServerId', contact.id)
-              
-              if @just_created[contact.id]
-                a << node('ClientId', @just_created[contact.id])
-              end
-              
-              a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
+        responses = node('Responses')
+        commands = node('Commands')
+        
+        created.each do |cached_id, cached_etag|
+          contact = folder.find_contact(cached_id)
+          unless contact
+            raise UnknownContactId
+          end
+          
+          add_node = node('Add') do |a|
+            if @just_created[contact.id]
+              a << node('ClientId', @just_created[contact.id])
             end
             
-            state.add_contact(folder, contact)
-            break if window_full?(-1)
-          end unless window_full?
+            a << node('ServerId', contact.id)
+            a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
+          end
           
-          updated.each do |cached_id, cached_etag|
-            contact = folder.find_contact(cached_id)
-            
-            cmds << node('Change') do |a|
-              a << node('ServerId', contact.id)
-              a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
-            end
-            
-            state.update_contact(folder, contact)
-            break if window_full?(-1)
-          end unless window_full?
+          if @just_created[contact.id]
+            responses << add_node
+          else
+            commands << add_node
+          end
           
-          deleted.each do |cached_id, cached_etag|
-            cmds << node('Delete') do |a|
-              a << node('ServerId', cached_id)
-            end
-            
-            state.remove_contact(folder, cached_id)
-            break if window_full?(-1)
-          end unless window_full?
           
-        end
+          state.add_contact(folder, contact)
+          break if window_full?(-1)
+        end unless window_full?
+        
+        updated.each do |cached_id, cached_etag|
+          contact = folder.find_contact(cached_id)
+          
+          commands << node('Change') do |a|
+            a << node('ServerId', contact.id)
+            a << node('ApplicationData'){ |app_data| contact.to_xml(app_data) }
+          end
+          
+          state.update_contact(folder, contact)
+          break if window_full?(-1)
+        end unless window_full?
+        
+        deleted.each do |cached_id, cached_etag|
+          commands << node('Delete') do |a|
+            a << node('ServerId', cached_id)
+          end
+          
+          state.remove_contact(folder, cached_id)
+          break if window_full?(-1)
+        end unless window_full?
+        
+        
+        n << responses
+        n << commands
       end
       
       def do_response(fs)

@@ -60,6 +60,7 @@ describe 'Commands::Sync' do
             <SyncKey>#{state.id}</SyncKey>
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
+            <Responses></Responses>
             <Commands>
               <Add>
                 <ServerId>#{c.id}</ServerId>
@@ -104,7 +105,8 @@ describe 'Commands::Sync' do
             <SyncKey>#{state.id}</SyncKey>
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
-            <Commands/>
+            <Responses></Responses>
+            <Commands></Commands>
           </Collection>
         </Collections>
       </Sync>
@@ -156,6 +158,7 @@ describe 'Commands::Sync' do
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
             <MoreAvailable></MoreAvailable>
+            <Responses></Responses>
             <Commands>
               <Add>
                 <ServerId>#{c1.id}</ServerId>
@@ -199,6 +202,7 @@ describe 'Commands::Sync' do
             <SyncKey>#{state.id}</SyncKey>
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
+            <Responses></Responses>
             <Commands>
               <Add>
                 <ServerId>#{c3.id}</ServerId>
@@ -260,6 +264,7 @@ describe 'Commands::Sync' do
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
             <MoreAvailable></MoreAvailable>
+            <Responses></Responses>
             <Commands>
               <Change>
                 <ServerId>#{c1.id}</ServerId>
@@ -303,6 +308,7 @@ describe 'Commands::Sync' do
             <SyncKey>#{state.id}</SyncKey>
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
+            <Responses></Responses>
             <Commands>
               <Change>
                 <ServerId>#{c3.id}</ServerId>
@@ -358,6 +364,7 @@ describe 'Commands::Sync' do
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
             <MoreAvailable></MoreAvailable>
+            <Responses></Responses>
             <Commands>
               <Delete>
                 <ServerId>#{c1.id}</ServerId>
@@ -399,6 +406,7 @@ describe 'Commands::Sync' do
             <SyncKey>#{state.id}</SyncKey>
             <CollectionId>#{book.id}</CollectionId>
             <Status>1</Status>
+            <Responses></Responses>
             <Commands>
               <Delete>
                 <ServerId>#{c3.id}</ServerId>
@@ -468,13 +476,14 @@ describe 'Commands::Sync' do
               <SyncKey>#{state.id}</SyncKey>
               <CollectionId>#{@book.id}</CollectionId>
               <Status>1</Status>
-              <Commands>
+              <Responses>
                 <Add>
-                  <ServerId>#{new_contact.id}</ServerId>
                   <ClientId>some_random_crap</ClientId>
+                  <ServerId>#{new_contact.id}</ServerId>
                   #{new_contact_xml}
                 </Add>
-              </Commands>
+              </Responses>
+              <Commands></Commands>
             </Collection>
           </Collections>
         </Sync>
@@ -529,6 +538,7 @@ describe 'Commands::Sync' do
               <SyncKey>#{state.id}</SyncKey>
               <CollectionId>#{@book.id}</CollectionId>
               <Status>1</Status>
+              <Responses></Responses>
               <Commands>
                 <Change>
                   <ServerId>#{contact.id}</ServerId>
@@ -582,6 +592,7 @@ describe 'Commands::Sync' do
               <SyncKey>#{state.id}</SyncKey>
               <CollectionId>#{@book.id}</CollectionId>
               <Status>1</Status>
+              <Responses></Responses>
               <Commands>
                 <Delete>
                   <ServerId>#{contact.id}</ServerId>
