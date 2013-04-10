@@ -23,6 +23,14 @@ module AS
           end
         end
         
+        # body
+        if note != nil
+          data << node('Body', nil, xmlns: 'AirSyncBase:') do |body|
+            body << node('Type', 1)
+            body << node('Data', note)
+          end
+        end
+        
       end
       
       def update_from_xml(data_node)
@@ -30,6 +38,10 @@ module AS
           value = find_text_node(data_node, as_name)
           send("#{accessor_name}=", value)
         end
+        
+        # note
+        self.note = find_text_node(data_node, 'Body/Data')
+        
       end
             
     end

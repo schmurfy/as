@@ -4,7 +4,7 @@ require File.expand_path('../../../spec_helper', __FILE__)
 
 describe 'Formatters::Contact' do
   before do
-    @contact = c = build(:contact, title: 'Mr', firstname: 'René')
+    @contact = c = build(:contact, title: 'Mr', firstname: 'René', note: "A long\nnote")
     @expected_xml = unindent(<<-EOS)
 
       <Dummy>
@@ -13,6 +13,11 @@ describe 'Formatters::Contact' do
         <FirstName xmlns="Contacts:">#{c.firstname}</FirstName>
         <LastName xmlns="Contacts:">#{c.lastname}</LastName>
         <CompanyName xmlns="Contacts:">#{c.company_name}</CompanyName>
+        <Body xmlns="AirSyncBase:">
+          <Type>1</Type>
+          <Data>A long
+      note</Data>
+        </Body>
       </Dummy>
     EOS
   end
@@ -31,8 +36,10 @@ describe 'Formatters::Contact' do
     node = Ox.load(@expected_xml)
     
     @contact.firstname = ""
+    @contact.note = ""
     @contact.update_from_xml(node)
     @contact.firstname.should == "René"
+    @contact.note.should == "A long\nnote"
     @contact
   end
   
