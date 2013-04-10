@@ -25,6 +25,7 @@ module Testing
     attribute :firstname, String
     attribute :lastname, String
     attribute :company_name, String
+    attribute :note, String
     
     def fileas
       "#{firstname} #{lastname}"
