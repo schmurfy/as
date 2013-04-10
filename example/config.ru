@@ -5,7 +5,7 @@ require 'rack/fiber_pool'
 require 'as'
 require 'as/debug/sniffer'
 
-require File.expand_path('../sniffer', __FILE__)
+require File.expand_path('../../lib/as/debug/sniffer', __FILE__)
 require File.expand_path('../../specs/support/models', __FILE__)
 
 =begin
