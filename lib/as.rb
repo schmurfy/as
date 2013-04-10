@@ -18,4 +18,5 @@ require_relative 'as/commands/search'
 
 module AS
   UnknownFolderId = Class.new(RuntimeError)
+  UnknownContactId = Class.new(RuntimeError)
 end
