@@ -93,8 +93,8 @@ module AS
       f.set_contact(contact.id, contact.etag)
     end
     
-    def remove_contact(folder, contact_id)
-      f = find_folder(folder.id)
+    def remove_contact(folder_id, contact_id)
+      f = find_folder(folder_id)
       f.remove_contact(contact_id)
     end
     

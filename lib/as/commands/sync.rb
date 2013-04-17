@@ -165,7 +165,7 @@ module AS
             a << node('ServerId', cached_id)
           end
           
-          state.remove_contact(folder, cached_id)
+          state.remove_contact(folder.id, cached_id)
           break if window_full?(-1)
         end unless window_full?
         
