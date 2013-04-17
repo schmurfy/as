@@ -605,6 +605,62 @@ describe 'Commands::Sync' do
       
     end
     
+    
+    should 'resurrect contact', focus: true do
+      contact = @book.contacts[0]
+      
+      state = @user.create_savedtstate(@book.id)
+      @user.update_savedstate(:contacts, state, @user.current_state(@book.id))
+      
+      @user.expects(:delete_contact).with(@book.id.to_s, contact.id)
+      
+      response = as_request('Sync', <<-EOS)
+        <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+        <Sync xmlns="AirSync:">
+          <Collections>
+            <Collection>
+              <Class>Contacts</Class>
+              <SyncKey>#{state.id}</SyncKey>
+              <CollectionId>#{@book.id}</CollectionId>
+              <WindowSize>4</WindowSize>
+              <Commands>
+                <Delete>
+                  <ServerId>#{contact.id}</ServerId>
+                </Delete>
+              </Commands>
+            </Collection>
+          </Collections>
+        </Sync>
+      EOS
+      
+      response.status.should == 200
+      @book.contacts.size.should == 1
+      
+      contact_xml = build_contact_xml(contact, 18)
+      
+      response.body.should == unindent(<<-EOS )
+        <?xml version="1.0" encoding="utf-8"?>
+        <!DOCTYPE ActiveSync PUBLIC "-//MICROSOFT//DTD ActiveSync//EN" "http://www.microsoft.com/" >
+        <Sync xmlns="AirSync:">
+          <Collections>
+            <Collection>
+              <Class>Contacts</Class>
+              <SyncKey>#{state.id}</SyncKey>
+              <CollectionId>#{@book.id}</CollectionId>
+              <Status>1</Status>
+              <Responses></Responses>
+              <Commands>
+                <Add>
+                  <ServerId>#{contact.id}</ServerId>
+                  #{contact_xml}
+                </Add>
+              </Commands>
+            </Collection>
+          </Collections>
+        </Sync>
+      EOS
+    end
+    
   end
   
 end

@@ -32,6 +32,8 @@ module AS
           # client should not send any changes during initial sync
           # just ignore if they do it anyway.
           if (sync_key != '0')
+            state = savedstate(sync_key, collection_id)
+            
             unless changes.empty?
               changes.each do |change|
                 id = find_text_node(change, 'ServerId')
@@ -62,8 +64,9 @@ module AS
             
             unless deleted.empty?
               deleted.each do |deletion|
-                id = find_text_node(deletion, 'ServerId')
+                id = find_text_node(deletion, 'ServerId', :to_i)
                 current_user.delete_contact(collection_id, id)
+                state.remove_contact(collection_id, id)
               end
             end
             
