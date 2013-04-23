@@ -9,6 +9,10 @@ module AS
     include Singleton
     
     def initialize
+      reset()
+    end
+    
+    def reset
       @watchers = {}
       @watching_users = {}
     end
@@ -29,9 +33,11 @@ module AS
       
       @watching_users[user_id] = fb
       
+      pair = [user_id, fb]
+      
       folder_ids.each do |id|
         @watchers[id] ||= []
-        @watchers[id] << fb
+        @watchers[id] << pair
       end
       
       timer = EM::add_timer(timeout) do
@@ -44,7 +50,7 @@ module AS
     ensure
       @watching_users.delete(user_id)
       folder_ids.each do |id|
-        @watchers[id].delete(fb)
+        @watchers[id].delete(pair)
       end
 
     end
@@ -57,12 +63,14 @@ module AS
     end
     
     
-    def trigger_change(folder_id)
+    def trigger_change(folder_id, target_user_id = nil)
       changed = [folder_id]
       
       if @watchers[folder_id]
-        @watchers[folder_id].each do |fb|
-          fb.resume(changed)
+        @watchers[folder_id].each do |(user_id, fb)|
+          if !target_user_id || (user_id == target_user_id)
+            fb.resume(changed)
+          end
         end
       end
       

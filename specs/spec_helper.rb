@@ -11,6 +11,7 @@ require File.expand_path('../support/models', __FILE__)
 require File.expand_path('../factories', __FILE__)
 
 require 'eetee/ext/mocha'
+require 'eetee/ext/time'
 require 'eetee/ext/rack'
 require 'eetee/ext/em'
 
