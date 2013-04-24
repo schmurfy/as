@@ -606,7 +606,7 @@ describe 'Commands::Sync' do
     end
     
     
-    should 'resurrect contact', focus: true do
+    should 'resurrect contact' do
       contact = @book.contacts[0]
       
       state = @user.create_savedtstate(@book.id)
