@@ -33,6 +33,7 @@ module AS
           # just ignore if they do it anyway.
           if (sync_key != '0')
             state = savedstate(sync_key, collection_id)
+            folder = current_user.find_addressbook(collection_id)
             
             unless changes.empty?
               changes.each do |change|
@@ -44,6 +45,7 @@ module AS
                 if contact
                   contact.update_from_xml(data[0])
                   contact.save
+                  state.update_contact(folder, contact)
                 else
                   raise "unknown contact: #{id}"
                 end
