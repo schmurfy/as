@@ -99,7 +99,7 @@ module AS
     end
     
     def to_s
-      dump(self)
+      self.class.dump(self)
     end
 
     def ==(other)
