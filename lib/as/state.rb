@@ -98,8 +98,12 @@ module AS
       f.remove_contact(contact_id)
     end
     
+    def to_s
+      self.class.dump(self)
+    end
+
     def ==(other)
-      folders == other.folders
+      self.to_s == other.to_s
     end
     
     def compare_folders(new_state)
